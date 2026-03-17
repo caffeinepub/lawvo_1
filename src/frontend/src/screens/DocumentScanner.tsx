@@ -6,10 +6,10 @@ import {
   FileText,
   Image,
   Loader2,
-  Scale,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
+import { VakyomLogo } from "../components/VakyomLogo";
 import { useTranslation } from "../i18n/useTranslation";
 
 const ANALYSIS_RESULT = {
@@ -65,9 +65,7 @@ export function DocumentScanner({ onBack }: DocumentScannerProps) {
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <div className="w-8 h-8 rounded-lg bg-gold flex items-center justify-center">
-          <Scale className="w-4 h-4 text-navy" />
-        </div>
+        <VakyomLogo size={36} />
         <span className="font-display font-bold text-gold text-xl">
           {t.doc_title}
         </span>

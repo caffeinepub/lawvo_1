@@ -3,13 +3,13 @@ import {
   Eye,
   Globe,
   Heart,
-  Scale,
   Shield,
   Target,
   Zap,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { FounderName } from "../components/FounderName";
+import { VakyomLogo } from "../components/VakyomLogo";
 import { useTranslation } from "../i18n/useTranslation";
 
 interface AboutProps {
@@ -52,12 +52,7 @@ export function About({ onBack }: AboutProps) {
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <div className="w-8 h-8 rounded-lg bg-gold flex items-center justify-center">
-          <Scale
-            className="w-4 h-4"
-            style={{ color: "oklch(0.13 0.04 250)" }}
-          />
-        </div>
+        <VakyomLogo size={36} />
         <span className="font-display font-bold text-gold text-xl">
           {t.about_title}
         </span>
@@ -67,15 +62,11 @@ export function About({ onBack }: AboutProps) {
         {/* Hero banner */}
         <div className="bg-navy px-6 py-12 text-center">
           <motion.div
-            className="w-20 h-20 rounded-2xl bg-gold flex items-center justify-center mx-auto mb-5 shadow-gold"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5 }}
           >
-            <Scale
-              className="w-10 h-10"
-              style={{ color: "oklch(0.13 0.04 250)" }}
-            />
+            <VakyomLogo size={80} className="mx-auto" />
           </motion.div>
           <motion.h1
             className="text-4xl font-display font-bold text-gold mb-3"

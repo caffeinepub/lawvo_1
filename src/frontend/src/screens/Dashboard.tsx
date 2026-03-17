@@ -1,5 +1,6 @@
 import { Briefcase, FileText, Info, Mic, Scale, Users } from "lucide-react";
 import { motion } from "motion/react";
+import { VakyomLogo } from "../components/VakyomLogo";
 import { useTranslation } from "../i18n/useTranslation";
 
 export type DashboardScreen =
@@ -73,12 +74,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
       {/* Header */}
       <header className="bg-navy px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gold flex items-center justify-center">
-            <Scale
-              className="w-5 h-5"
-              style={{ color: "oklch(0.13 0.04 250)" }}
-            />
-          </div>
+          <VakyomLogo size={36} />
           <span className="font-display font-bold text-gold text-xl">
             Vakyom
           </span>

@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { Check, Scale } from "lucide-react";
+import { Check } from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { Language } from "../backend.d";
+import { VakyomLogo } from "../components/VakyomLogo";
 import { useSetUserLanguage } from "../hooks/useQueries";
 import { useTranslation } from "../i18n/useTranslation";
 
@@ -34,12 +35,7 @@ export function LanguageSelect({ onContinue }: LanguageSelectProps) {
     <div className="min-h-screen bg-background flex flex-col screen-enter">
       {/* Header */}
       <header className="bg-navy px-6 py-4 flex items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-gold flex items-center justify-center">
-          <Scale
-            className="w-4 h-4"
-            style={{ color: "oklch(0.13 0.04 250)" }}
-          />
-        </div>
+        <VakyomLogo size={36} />
         <span className="font-display font-bold text-gold text-xl">Vakyom</span>
       </header>
 

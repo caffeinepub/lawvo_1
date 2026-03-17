@@ -9,13 +9,13 @@ import {
   History,
   Loader2,
   MessageSquare,
-  Scale,
   Send,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { CaseStatus } from "../backend.d";
+import { VakyomLogo } from "../components/VakyomLogo";
 import {
   useCases,
   useDocuments,
@@ -145,12 +145,7 @@ export function MyCases({ onBack }: MyCasesProps) {
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <div className="w-8 h-8 rounded-lg bg-gold flex items-center justify-center">
-          <Scale
-            className="w-4 h-4"
-            style={{ color: "oklch(0.13 0.04 250)" }}
-          />
-        </div>
+        <VakyomLogo size={36} />
         <span className="font-display font-bold text-gold text-xl">
           {t.cases_title}
         </span>

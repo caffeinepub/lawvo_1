@@ -9,6 +9,7 @@ import {
   Users,
 } from "lucide-react";
 import { motion } from "motion/react";
+import { VakyomLogo } from "../components/VakyomLogo";
 import { useTranslation } from "../i18n/useTranslation";
 
 const GUIDANCE_DATA = {
@@ -45,9 +46,7 @@ export function LegalGuidance({ onBack, onConnectLawyer }: LegalGuidanceProps) {
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <div className="w-8 h-8 rounded-lg bg-gold flex items-center justify-center">
-          <Scale className="w-4 h-4 text-navy" />
-        </div>
+        <VakyomLogo size={36} />
         <span className="font-display font-bold text-gold text-xl">
           {t.guidance_title}
         </span>
