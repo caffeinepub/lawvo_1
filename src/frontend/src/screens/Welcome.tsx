@@ -90,11 +90,11 @@ export function Welcome({ onGetStarted }: WelcomeProps) {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            {/* Logo image with glow */}
+            {/* Logo image with white square background and glow */}
             <div className="relative mb-4">
               {/* Outer glow ring */}
               <div
-                className="absolute inset-0 rounded-3xl"
+                className="absolute inset-0 rounded-2xl"
                 style={{
                   boxShadow:
                     "0 0 60px 18px oklch(0.72 0.14 78 / 0.45), 0 0 120px 40px oklch(0.72 0.14 78 / 0.18)",
@@ -102,18 +102,31 @@ export function Welcome({ onGetStarted }: WelcomeProps) {
               />
               {/* Gold border ring */}
               <div
-                className="absolute -inset-2 rounded-3xl"
+                className="absolute -inset-2 rounded-2xl"
                 style={{
                   border: "2px solid oklch(0.72 0.14 78 / 0.5)",
-                  borderRadius: "24px",
                 }}
               />
-              <img
-                src="/assets/generated/vakyom-logo-transparent.dim_120x120.png"
-                alt="Vakyom Logo"
-                style={{ width: 120, height: 120, objectFit: "contain" }}
-                className="relative z-10 drop-shadow-2xl"
-              />
+              {/* White square background container */}
+              <div
+                className="relative z-10 flex items-center justify-center rounded-2xl overflow-hidden"
+                style={{
+                  width: 120,
+                  height: 120,
+                  backgroundColor: "#ffffff",
+                  padding: 10,
+                }}
+              >
+                <img
+                  src="/assets/generated/vakyom-logo-professional.dim_400x400.png"
+                  alt="Vakyom Logo"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                  }}
+                />
+              </div>
             </div>
 
             {/* Brand name */}

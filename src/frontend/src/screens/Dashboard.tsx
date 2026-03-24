@@ -1,5 +1,15 @@
-import { Briefcase, FileText, Info, Mic, Scale, Users } from "lucide-react";
-import { motion } from "motion/react";
+import {
+  Briefcase,
+  FileText,
+  Info,
+  MessageCircle,
+  Mic,
+  Scale,
+  Users,
+  X,
+} from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { useState } from "react";
 import { VakyomLogo } from "../components/VakyomLogo";
 import { useTranslation } from "../i18n/useTranslation";
 
@@ -15,8 +25,11 @@ interface DashboardProps {
   onNavigate: (screen: DashboardScreen) => void;
 }
 
+const WHATSAPP_URL = "https://wa.me/918152889991";
+
 export function Dashboard({ onNavigate }: DashboardProps) {
   const { t } = useTranslation();
+  const [showFounderModal, setShowFounderModal] = useState(false);
 
   const CARDS: {
     id: DashboardScreen;
@@ -69,6 +82,24 @@ export function Dashboard({ onNavigate }: DashboardProps) {
     },
   ];
 
+  const handleCardClick = (id: DashboardScreen) => {
+    if (id === "about") {
+      onNavigate(id);
+    } else {
+      setShowFounderModal(true);
+    }
+  };
+
+  const handleStartWhatsApp = () => {
+    setShowFounderModal(false);
+    window.open(WHATSAPP_URL, "_blank", "noopener,noreferrer");
+  };
+
+  const founderLines = t.founder_modal_message
+    .split("\n\n")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+
   return (
     <div className="min-h-screen bg-background screen-enter">
       {/* Header */}
@@ -100,7 +131,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
               <motion.button
                 key={card.id}
                 data-ocid={`dashboard.card.item.${i + 1}`}
-                onClick={() => onNavigate(card.id)}
+                onClick={() => handleCardClick(card.id)}
                 className="group p-5 rounded-2xl bg-card border border-border hover:border-transparent text-left transition-all duration-200"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -130,6 +161,132 @@ export function Dashboard({ onNavigate }: DashboardProps) {
           </div>
         </motion.div>
       </main>
+
+      {/* Founder Message Modal */}
+      <AnimatePresence>
+        {showFounderModal && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{ background: "rgba(5, 10, 30, 0.92)" }}
+          >
+            <motion.div
+              className="relative w-full max-w-md rounded-3xl overflow-hidden"
+              initial={{ scale: 0.85, opacity: 0, y: 30 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", damping: 20, stiffness: 240 }}
+              style={{
+                background: "oklch(0.13 0.04 250)",
+                border: "2px solid oklch(0.72 0.14 78 / 0.5)",
+                boxShadow: "0 0 60px oklch(0.72 0.14 78 / 0.3)",
+              }}
+            >
+              {/* Gold bar top */}
+              <div
+                className="h-1 w-full"
+                style={{
+                  background:
+                    "linear-gradient(90deg, transparent, oklch(0.72 0.14 78), transparent)",
+                }}
+              />
+
+              <div className="p-7">
+                {/* Header row */}
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="rounded-xl p-2"
+                      style={{ background: "white" }}
+                    >
+                      <VakyomLogo size={32} />
+                    </div>
+                    <div>
+                      <p
+                        className="font-bold text-sm"
+                        style={{ color: "oklch(0.72 0.14 78)" }}
+                      >
+                        Tarun Kumar
+                      </p>
+                      <p className="text-xs text-white/50">Founder, Vakyom</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowFounderModal(false)}
+                    className="text-white/40 hover:text-white/80 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Message */}
+                <div
+                  className="rounded-2xl p-5 mb-6 space-y-3"
+                  style={{
+                    background: "oklch(0.18 0.05 250)",
+                    border: "1px solid oklch(0.72 0.14 78 / 0.2)",
+                  }}
+                >
+                  {founderLines.map((line, i) => (
+                    <p
+                      // biome-ignore lint/suspicious/noArrayIndexKey: static list
+                      key={i}
+                      className="text-sm leading-relaxed"
+                      style={{
+                        color:
+                          i === 0
+                            ? "oklch(0.72 0.14 78)"
+                            : "rgba(255,255,255,0.82)",
+                      }}
+                    >
+                      {line}
+                    </p>
+                  ))}
+                </div>
+
+                {/* CTA buttons */}
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowFounderModal(false)}
+                    className="px-4 py-2.5 rounded-xl text-sm font-medium transition-all"
+                    style={{
+                      background: "oklch(0.18 0.05 250)",
+                      border: "1px solid oklch(0.72 0.14 78 / 0.3)",
+                      color: "rgba(255,255,255,0.6)",
+                    }}
+                  >
+                    {t.founder_modal_close}
+                  </button>
+                  <motion.button
+                    type="button"
+                    onClick={handleStartWhatsApp}
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all"
+                    style={{ background: "#25D366", color: "white" }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.97 }}
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    {t.founder_modal_start}
+                  </motion.button>
+                </div>
+              </div>
+
+              {/* Gold bar bottom */}
+              <div
+                className="h-1 w-full"
+                style={{
+                  background:
+                    "linear-gradient(90deg, transparent, oklch(0.72 0.14 78), transparent)",
+                }}
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

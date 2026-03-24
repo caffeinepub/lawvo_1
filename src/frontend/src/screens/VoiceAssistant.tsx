@@ -2,14 +2,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Loader2, Mic, MicOff, Scale, Send } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { VakyomLogo } from "../components/VakyomLogo";
 import { useTranslation } from "../i18n/useTranslation";
 
-const SAMPLE_QUERY =
-  "I received a legal notice regarding property. What should I do?";
-
-const SIMULATED_RESPONSE = `Based on your situation, here is what you should do:
+const SIMULATED_RESPONSE_BY_LANG: Record<string, string> = {
+  "en-IN": `Based on your situation, here is what you should do:
 
 **Immediate Steps (Within 7 Days)**
 • Do not ignore the notice — responding is legally required in most cases
@@ -22,15 +20,108 @@ const SIMULATED_RESPONSE = `Based on your situation, here is what you should do:
 **Important Points**
 • A legal notice is a formal communication — ignoring it may result in court proceedings against you
 • Your response (or non-response) can significantly impact future legal proceedings
-• If the notice involves a government authority, check for any encroachment or acquisition notices
 
 **Recommended Action**
 Consult a qualified property lawyer within 2 weeks. Vakyom can connect you with verified property law experts in your city.
 
-*Disclaimer: This is general legal information, not legal advice. Please consult a qualified lawyer for advice specific to your situation.*`;
+*Disclaimer: This is general legal information, not legal advice.*`,
+  "hi-IN": `आपकी स्थिति के आधार पर, यहां बताया गया है कि आपको क्या करना चाहिए:
+
+**तुरंत कदम (7 दिनों के भीतर)**
+• नोटिस को नजरअंदाज न करें — अधिकांश मामलों में जवाब देना कानूनी रूप से आवश्यक है
+• नोटिस को ध्यान से पढ़ें और प्रेषक, कानूनी दावे और जवाब देने की समय-सीमा की पहचान करें
+
+**30 दिनों के भीतर**
+• सभी संपत्ति-संबंधित दस्तावेज इकट्ठा करें: शीर्षक विलेख, बिक्री समझौता, कर रसीदें
+• कानूनी निहितार्थों को समझने के लिए एक संपत्ति वकील से परामर्श करें
+
+**अनुशंसित कार्रवाई**
+2 सप्ताह के भीतर एक योग्य संपत्ति वकील से परामर्श करें। Vakyom आपके शहर में सत्यापित विशेषज्ञों से आपको जोड़ सकता है।
+
+*अस्वीकरण: यह सामान्य कानूनी जानकारी है, कानूनी सलाह नहीं।*`,
+  "kn-IN": `ನಿಮ್ಮ ಪರಿಸ್ಥಿತಿಯ ಆಧಾರದ ಮೇಲೆ, ನೀವು ಏನು ಮಾಡಬೇಕು ಎಂಬುದು ಇಲ್ಲಿದೆ:
+
+**ತಕ್ಷಣದ ಹಂತಗಳು (7 ದಿನಗಳಲ್ಲಿ)**
+• ನೋಟಿಸ್ ಅನ್ನು ನಿರ್ಲಕ್ಷಿಸಬೇಡಿ — ಹೆಚ್ಚಿನ ಪ್ರಕರಣಗಳಲ್ಲಿ ಪ್ರತಿಕ್ರಿಯಿಸುವುದು ಕಾನೂನುಬದ್ಧವಾಗಿ ಅಗತ್ಯ
+• ನೋಟಿಸ್ ಅನ್ನು ಎಚ್ಚರಿಕೆಯಿಂದ ಓದಿ ಮತ್ತು ಕಳುಹಿಸಿದವರ ಹೆಸರು, ಕಾನೂನು ಹಕ್ಕು ಮತ್ತು ಗಡುವಿನ ದಿನಾಂಕ ಗುರುತಿಸಿ
+
+**30 ದಿನಗಳಲ್ಲಿ**
+• ಎಲ್ಲಾ ಆಸ್ತಿ-ಸಂಬಂಧಿತ ದಾಖಲೆಗಳನ್ನು ಸಂಗ್ರಹಿಸಿ: ಶೀರ್ಷಿಕೆ ದಾಖಲೆ, ಮಾರಾಟ ಒಪ್ಪಂದ, ತೆರಿಗೆ ರಶೀದಿಗಳು
+• ಕಾನೂನು ಪರಿಣಾಮಗಳನ್ನು ಅರ್ಥಮಾಡಿಕೊಳ್ಳಲು ಆಸ್ತಿ ವಕೀಲರನ್ನು ಸಂಪರ್ಕಿಸಿ
+
+**ಶಿಫಾರಸು ಮಾಡಿದ ಕ್ರಮ**
+2 ವಾರಗಳಲ್ಲಿ ಅರ್ಹ ಆಸ್ತಿ ವಕೀಲರನ್ನು ಸಂಪರ್ಕಿಸಿ। Vakyom ನಿಮ್ಮ ನಗರದಲ್ಲಿ ಪರಿಶೀಲಿಸಲಾದ ತಜ್ಞರೊಂದಿಗೆ ನಿಮ್ಮನ್ನು ಸಂಪರ್ಕಿಸಬಹುದು.
+
+*ಹಕ್ಕು ನಿರಾಕರಣೆ: ಇದು ಸಾಮಾನ್ಯ ಕಾನೂನು ಮಾಹಿತಿಯಾಗಿದೆ, ಕಾನೂನು ಸಲಹೆಯಲ್ಲ.*`,
+  "ta-IN": `உங்கள் நிலைமையின் அடிப்படையில், நீங்கள் என்ன செய்ய வேண்டும் என்பது இங்கே:
+
+**உடனடி நடவடிக்கைகள் (7 நாட்களுக்குள்)**
+• நோட்டீஸை புறக்கணிக்காதீர்கள் — பெரும்பாலான வழக்குகளில் பதிலளிப்பது சட்டப்படி அவசியம்
+• நோட்டீஸை கவனமாக படியுங்கள் மற்றும் அனுப்புநர், சட்ட கோரிக்கை மற்றும் காலக்கெடுவை கண்டறியுங்கள்
+
+**30 நாட்களுக்குள்**
+• அனைத்து சொத்து தொடர்பான ஆவணங்களை சேகரியுங்கள்: பட்டா, விற்பனை ஒப்பந்தம், வரி ரசீதுகள்
+• ஒரு சொத்து வழக்கறிஞரை அணுகுங்கள்
+
+**பரிந்துரைக்கப்பட்ட நடவடிக்கை**
+2 வாரங்களுக்குள் தகுதிவாய்ந்த சொத்து வழக்கறிஞரை அணுகுங்கள். Vakyom உங்கள் நகரில் சரிபார்க்கப்பட்ட வல்லுநர்களுடன் உங்களை இணைக்கலாம்.
+
+*மறுப்பு: இது பொதுவான சட்ட தகவல், சட்ட ஆலோசனை அல்ல.*`,
+  "te-IN": `మీ పరిస్థితి ఆధారంగా, మీరు ఏమి చేయాలో ఇక్కడ ఉంది:
+
+**తక్షణ చర్యలు (7 రోజులలోపు)**
+• నోటీసును నిర్లక్ష్యం చేయవద్దు — చాలా సందర్భాలలో స్పందించడం చట్టపరంగా అవసరం
+• నోటీసును జాగ్రత్తగా చదవండి మరియు పంపిన వ్యక్తి, చట్టపరమైన వాదన మరియు గడువు తేదీని గుర్తించండి
+
+**30 రోజులలోపు**
+• అన్ని ఆస్తి-సంబంధిత పత్రాలను సేకరించండి: టైటిల్ డీడ్, అమ్మకం ఒప్పందం, పన్ను రసీదులు
+• చట్టపరమైన చిక్కులను అర్థం చేసుకోవడానికి ఆస్తి న్యాయవాదిని సంప్రదించండి
+
+**సిఫార్సు చేయబడిన చర్య**
+2 వారాలలోపు అర్హులైన ఆస్తి న్యాయవాదిని సంప్రదించండి. Vakyom మీ నగరంలో ధృవీకరించబడిన నిపుణులతో మిమ్మల్ని అనుసంధానించగలదు.
+
+*నిరాకరణ: ఇది సాధారణ చట్టపరమైన సమాచారం, చట్టపరమైన సలహా కాదు.*`,
+  "bn-IN": `আপনার পরিস্থিতির উপর ভিত্তি করে, আপনার কী করা উচিত তা এখানে:
+
+**তাৎক্ষণিক পদক্ষেপ (৭ দিনের মধ্যে)**
+• নোটিশ উপেক্ষা করবেন না — বেশিরভাগ ক্ষেত্রে সাড়া দেওয়া আইনগতভাবে প্রয়োজনীয়
+• নোটিশটি সাবধানে পড়ুন এবং প্রেরক, আইনি দাবি এবং জবাব দেওয়ার সময়সীমা চিহ্নিত করুন
+
+**৩০ দিনের মধ্যে**
+• সমস্ত সম্পত্তি-সংক্রান্ত নথি সংগ্রহ করুন: শিরোনাম দলিল, বিক্রয় চুক্তি, কর রসিদ
+• আইনি প্রভাব বুঝতে একজন সম্পত্তি আইনজীবীর সাথে পরামর্শ করুন
+
+**প্রস্তাবিত পদক্ষেপ**
+২ সপ্তাহের মধ্যে একজন যোগ্য সম্পত্তি আইনজীবীর সাথে পরামর্শ করুন। Vakyom আপনার শহরে যাচাইকৃত বিশেষজ্ঞদের সাথে আপনাকে সংযুক্ত করতে পারে।
+
+*দাবিত্যাগ: এটি সাধারণ আইনি তথ্য, আইনি পরামর্শ নয়।*`,
+};
 
 interface VoiceAssistantProps {
   onBack: () => void;
+}
+
+type SpeechRecognitionEvent = {
+  results: { [key: number]: { [key: number]: { transcript: string } } };
+};
+
+type SpeechRecognitionInstance = {
+  lang: string;
+  interimResults: boolean;
+  maxAlternatives: number;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onerror: () => void;
+  onend: () => void;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+};
+
+declare global {
+  interface Window {
+    SpeechRecognition: new () => SpeechRecognitionInstance;
+    webkitSpeechRecognition: new () => SpeechRecognitionInstance;
+  }
 }
 
 export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
@@ -38,15 +129,20 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [showResponse, setShowResponse] = useState(false);
   const [textInput, setTextInput] = useState("");
+  const [transcript, setTranscript] = useState("");
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const { t } = useTranslation();
 
-  const handleMicClick = () => {
-    if (showResponse) {
-      setShowResponse(false);
-      setIsListening(false);
-      return;
-    }
-    if (!isListening) {
+  const langCode = t.welcome_speech_lang; // e.g. "kn-IN", "hi-IN"
+  const simulatedResponse =
+    SIMULATED_RESPONSE_BY_LANG[langCode] || SIMULATED_RESPONSE_BY_LANG["en-IN"];
+
+  const startListening = () => {
+    const SpeechRecognitionClass =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognitionClass) {
+      // Fallback: simulate if browser doesn't support it
       setIsListening(true);
       setTimeout(() => {
         setIsListening(false);
@@ -56,8 +152,55 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
           setShowResponse(true);
         }, 1800);
       }, 2500);
-    } else {
+      return;
+    }
+
+    const recognition = new SpeechRecognitionClass();
+    recognition.lang = langCode;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      const result = event.results[0][0].transcript;
+      setTranscript(result);
+      setTextInput(result);
+    };
+
+    recognition.onerror = () => {
       setIsListening(false);
+      setIsLoading(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+      setIsLoading(true);
+      setTimeout(() => {
+        setIsLoading(false);
+        setShowResponse(true);
+      }, 1500);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    setIsListening(true);
+  };
+
+  const stopListening = () => {
+    recognitionRef.current?.stop();
+    setIsListening(false);
+  };
+
+  const handleMicClick = () => {
+    if (showResponse) {
+      setShowResponse(false);
+      setTranscript("");
+      setTextInput("");
+      return;
+    }
+    if (!isListening) {
+      startListening();
+    } else {
+      stopListening();
     }
   };
 
@@ -87,13 +230,38 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
       </header>
 
       <main className="px-6 py-8 max-w-2xl mx-auto">
-        {/* Example query */}
-        <div className="mb-8 p-4 rounded-xl bg-muted border border-border">
-          <p className="text-xs text-muted-foreground mb-1 font-medium uppercase tracking-wide">
-            {t.voice_example_query_label}
-          </p>
-          <p className="text-sm text-foreground italic">"{SAMPLE_QUERY}"</p>
+        {/* Language indicator */}
+        <div className="mb-6 p-3 rounded-xl bg-muted border border-border flex items-center gap-2">
+          <span className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
+            {t.language_label}
+          </span>
+          <span
+            className="text-sm font-bold"
+            style={{ color: "oklch(0.72 0.14 78)" }}
+          >
+            {langCode}
+          </span>
         </div>
+
+        {/* Transcript display */}
+        {transcript ? (
+          <div className="mb-6 p-4 rounded-xl bg-muted border border-border">
+            <p className="text-xs text-muted-foreground mb-1 font-medium uppercase tracking-wide">
+              {"You said:"}
+            </p>
+            <p className="text-sm text-foreground italic">"{transcript}"</p>
+          </div>
+        ) : (
+          <div className="mb-8 p-4 rounded-xl bg-muted border border-border">
+            <p className="text-xs text-muted-foreground mb-1 font-medium uppercase tracking-wide">
+              {t.voice_example_query_label}
+            </p>
+            <p className="text-sm text-foreground italic">
+              &quot;I received a legal notice regarding property. What should I
+              do?&quot;
+            </p>
+          </div>
+        )}
 
         {/* Mic button */}
         <div className="flex flex-col items-center py-8">
@@ -175,7 +343,7 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
                 </span>
               </div>
               <div className="text-sm text-white/85 leading-relaxed whitespace-pre-line">
-                {SIMULATED_RESPONSE}
+                {simulatedResponse}
               </div>
             </motion.div>
           )}
