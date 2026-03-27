@@ -106,19 +106,40 @@ export interface Lawyer {
     location: string;
 }
 export type Time = bigint;
+export interface Feedback {
+    comment: string;
+    timestamp: Time;
+    rating: bigint;
+    principalId: Principal;
+}
 export interface GuidanceHistory {
     id: bigint;
     queryText: string;
     timestamp: Time;
     resultSummary: string;
 }
+export interface LawyerProfile {
+    name: string;
+    specialization: string;
+    phone: string;
+    barNumber: string;
+    location: string;
+    principalId: Principal;
+}
+export interface UserProfile {
+    name: string;
+    phone: string;
+    principalId: Principal;
+}
 export interface Case {
     id: bigint;
     status: CaseStatus;
     issueType: string;
     title: string;
+    lastUpdated: Time;
     createdDate: Time;
     description: string;
+    assignedLawyer?: Principal;
 }
 export enum CaseStatus {
     Active = "Active",
@@ -134,21 +155,47 @@ export enum Language {
     English = "English"
 }
 export interface backendInterface {
-    addCase(newCase: Case): Promise<void>;
-    addDocument(doc: UploadedDocument): Promise<void>;
-    addGuidanceHistory(entry: GuidanceHistory): Promise<void>;
+    addCase(newCase: Case): Promise<{
+        id: bigint;
+    }>;
+    addDocument(doc: UploadedDocument): Promise<{
+        id: bigint;
+    }>;
+    addGuidanceHistory(entry: GuidanceHistory): Promise<{
+        id: bigint;
+    }>;
+    assignCaseToLawyer(arg0: {
+        lawyerPrincipal: Principal;
+        caseId: bigint;
+    }): Promise<boolean>;
+    getAllFeedback(): Promise<Array<Feedback>>;
     getCases(): Promise<Array<Case>>;
     getDocuments(): Promise<Array<UploadedDocument>>;
     getGuidanceHistory(): Promise<Array<GuidanceHistory>>;
+    getLawyerCases(): Promise<Array<Case>>;
+    getLawyerProfile(): Promise<LawyerProfile | null>;
     getLawyerProfiles(): Promise<Array<Lawyer>>;
+    getMyProfile(): Promise<UserProfile | null>;
+    getUserFeedback(): Promise<Feedback | null>;
     getUserLanguage(): Promise<Language | null>;
     initialize(): Promise<void>;
+    listAllLawyers(): Promise<Array<LawyerProfile>>;
+    listAllUsersAdmin(): Promise<Array<UserProfile>>;
+    registerLawyer(name: string, phone: string, barNumber: string, specialization: string, location: string): Promise<boolean>;
+    registerOrUpdateUser(name: string, phone: string): Promise<boolean>;
     setUserLanguage(lang: Language): Promise<void>;
+    submitFeedback(rating: bigint, comment: string): Promise<boolean>;
+    updateCaseStatus(arg0: {
+        caseId: bigint;
+        newStatus: CaseStatus;
+    }): Promise<boolean>;
 }
-import type { Case as _Case, CaseStatus as _CaseStatus, Language as _Language, Time as _Time } from "./declarations/backend.did.d.ts";
+import type { Case as _Case, CaseStatus as _CaseStatus, Feedback as _Feedback, Language as _Language, LawyerProfile as _LawyerProfile, Time as _Time, UserProfile as _UserProfile } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
-    async addCase(arg0: Case): Promise<void> {
+    async addCase(arg0: Case): Promise<{
+        id: bigint;
+    }> {
         if (this.processError) {
             try {
                 const result = await this.actor.addCase(to_candid_Case_n1(this._uploadFile, this._downloadFile, arg0));
@@ -162,7 +209,9 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async addDocument(arg0: UploadedDocument): Promise<void> {
+    async addDocument(arg0: UploadedDocument): Promise<{
+        id: bigint;
+    }> {
         if (this.processError) {
             try {
                 const result = await this.actor.addDocument(arg0);
@@ -176,7 +225,9 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async addGuidanceHistory(arg0: GuidanceHistory): Promise<void> {
+    async addGuidanceHistory(arg0: GuidanceHistory): Promise<{
+        id: bigint;
+    }> {
         if (this.processError) {
             try {
                 const result = await this.actor.addGuidanceHistory(arg0);
@@ -187,6 +238,37 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.addGuidanceHistory(arg0);
+            return result;
+        }
+    }
+    async assignCaseToLawyer(arg0: {
+        lawyerPrincipal: Principal;
+        caseId: bigint;
+    }): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.assignCaseToLawyer(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.assignCaseToLawyer(arg0);
+            return result;
+        }
+    }
+    async getAllFeedback(): Promise<Array<Feedback>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAllFeedback();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAllFeedback();
             return result;
         }
     }
@@ -232,6 +314,34 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async getLawyerCases(): Promise<Array<Case>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getLawyerCases();
+                return from_candid_vec_n5(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getLawyerCases();
+            return from_candid_vec_n5(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getLawyerProfile(): Promise<LawyerProfile | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getLawyerProfile();
+                return from_candid_opt_n11(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getLawyerProfile();
+            return from_candid_opt_n11(this._uploadFile, this._downloadFile, result);
+        }
+    }
     async getLawyerProfiles(): Promise<Array<Lawyer>> {
         if (this.processError) {
             try {
@@ -246,18 +356,46 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async getMyProfile(): Promise<UserProfile | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getMyProfile();
+                return from_candid_opt_n12(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getMyProfile();
+            return from_candid_opt_n12(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getUserFeedback(): Promise<Feedback | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getUserFeedback();
+                return from_candid_opt_n13(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getUserFeedback();
+            return from_candid_opt_n13(this._uploadFile, this._downloadFile, result);
+        }
+    }
     async getUserLanguage(): Promise<Language | null> {
         if (this.processError) {
             try {
                 const result = await this.actor.getUserLanguage();
-                return from_candid_opt_n10(this._uploadFile, this._downloadFile, result);
+                return from_candid_opt_n14(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getUserLanguage();
-            return from_candid_opt_n10(this._uploadFile, this._downloadFile, result);
+            return from_candid_opt_n14(this._uploadFile, this._downloadFile, result);
         }
     }
     async initialize(): Promise<void> {
@@ -274,17 +412,104 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async setUserLanguage(arg0: Language): Promise<void> {
+    async listAllLawyers(): Promise<Array<LawyerProfile>> {
         if (this.processError) {
             try {
-                const result = await this.actor.setUserLanguage(to_candid_Language_n13(this._uploadFile, this._downloadFile, arg0));
+                const result = await this.actor.listAllLawyers();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.setUserLanguage(to_candid_Language_n13(this._uploadFile, this._downloadFile, arg0));
+            const result = await this.actor.listAllLawyers();
+            return result;
+        }
+    }
+    async listAllUsersAdmin(): Promise<Array<UserProfile>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.listAllUsersAdmin();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.listAllUsersAdmin();
+            return result;
+        }
+    }
+    async registerLawyer(arg0: string, arg1: string, arg2: string, arg3: string, arg4: string): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.registerLawyer(arg0, arg1, arg2, arg3, arg4);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.registerLawyer(arg0, arg1, arg2, arg3, arg4);
+            return result;
+        }
+    }
+    async registerOrUpdateUser(arg0: string, arg1: string): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.registerOrUpdateUser(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.registerOrUpdateUser(arg0, arg1);
+            return result;
+        }
+    }
+    async setUserLanguage(arg0: Language): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.setUserLanguage(to_candid_Language_n17(this._uploadFile, this._downloadFile, arg0));
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.setUserLanguage(to_candid_Language_n17(this._uploadFile, this._downloadFile, arg0));
+            return result;
+        }
+    }
+    async submitFeedback(arg0: bigint, arg1: string): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.submitFeedback(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.submitFeedback(arg0, arg1);
+            return result;
+        }
+    }
+    async updateCaseStatus(arg0: {
+        caseId: bigint;
+        newStatus: CaseStatus;
+    }): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateCaseStatus(to_candid_record_n19(this._uploadFile, this._downloadFile, arg0));
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateCaseStatus(to_candid_record_n19(this._uploadFile, this._downloadFile, arg0));
             return result;
         }
     }
@@ -295,37 +520,55 @@ function from_candid_CaseStatus_n8(_uploadFile: (file: ExternalBlob) => Promise<
 function from_candid_Case_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _Case): Case {
     return from_candid_record_n7(_uploadFile, _downloadFile, value);
 }
-function from_candid_Language_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _Language): Language {
-    return from_candid_variant_n12(_uploadFile, _downloadFile, value);
+function from_candid_Language_n15(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _Language): Language {
+    return from_candid_variant_n16(_uploadFile, _downloadFile, value);
 }
-function from_candid_opt_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Language]): Language | null {
-    return value.length === 0 ? null : from_candid_Language_n11(_uploadFile, _downloadFile, value[0]);
+function from_candid_opt_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [Principal]): Principal | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_LawyerProfile]): LawyerProfile | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Feedback]): Feedback | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Language]): Language | null {
+    return value.length === 0 ? null : from_candid_Language_n15(_uploadFile, _downloadFile, value[0]);
 }
 function from_candid_record_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     id: bigint;
     status: _CaseStatus;
     issueType: string;
     title: string;
+    lastUpdated: _Time;
     createdDate: _Time;
     description: string;
+    assignedLawyer: [] | [Principal];
 }): {
     id: bigint;
     status: CaseStatus;
     issueType: string;
     title: string;
+    lastUpdated: Time;
     createdDate: Time;
     description: string;
+    assignedLawyer?: Principal;
 } {
     return {
         id: value.id,
         status: from_candid_CaseStatus_n8(_uploadFile, _downloadFile, value.status),
         issueType: value.issueType,
         title: value.title,
+        lastUpdated: value.lastUpdated,
         createdDate: value.createdDate,
-        description: value.description
+        description: value.description,
+        assignedLawyer: record_opt_to_undefined(from_candid_opt_n10(_uploadFile, _downloadFile, value.assignedLawyer))
     };
 }
-function from_candid_variant_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_variant_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     Telugu: null;
 } | {
     Kannada: null;
@@ -358,34 +601,52 @@ function to_candid_CaseStatus_n3(_uploadFile: (file: ExternalBlob) => Promise<Ui
 function to_candid_Case_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Case): _Case {
     return to_candid_record_n2(_uploadFile, _downloadFile, value);
 }
-function to_candid_Language_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Language): _Language {
-    return to_candid_variant_n14(_uploadFile, _downloadFile, value);
+function to_candid_Language_n17(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Language): _Language {
+    return to_candid_variant_n18(_uploadFile, _downloadFile, value);
+}
+function to_candid_record_n19(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    caseId: bigint;
+    newStatus: CaseStatus;
+}): {
+    caseId: bigint;
+    newStatus: _CaseStatus;
+} {
+    return {
+        caseId: value.caseId,
+        newStatus: to_candid_CaseStatus_n3(_uploadFile, _downloadFile, value.newStatus)
+    };
 }
 function to_candid_record_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     id: bigint;
     status: CaseStatus;
     issueType: string;
     title: string;
+    lastUpdated: Time;
     createdDate: Time;
     description: string;
+    assignedLawyer?: Principal;
 }): {
     id: bigint;
     status: _CaseStatus;
     issueType: string;
     title: string;
+    lastUpdated: _Time;
     createdDate: _Time;
     description: string;
+    assignedLawyer: [] | [Principal];
 } {
     return {
         id: value.id,
         status: to_candid_CaseStatus_n3(_uploadFile, _downloadFile, value.status),
         issueType: value.issueType,
         title: value.title,
+        lastUpdated: value.lastUpdated,
         createdDate: value.createdDate,
-        description: value.description
+        description: value.description,
+        assignedLawyer: value.assignedLawyer ? candid_some(value.assignedLawyer) : candid_none()
     };
 }
-function to_candid_variant_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Language): {
+function to_candid_variant_n18(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Language): {
     Telugu: null;
 } | {
     Kannada: null;

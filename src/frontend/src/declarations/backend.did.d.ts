@@ -15,12 +15,20 @@ export interface Case {
   'status' : CaseStatus,
   'issueType' : string,
   'title' : string,
+  'lastUpdated' : Time,
   'createdDate' : Time,
   'description' : string,
+  'assignedLawyer' : [] | [Principal],
 }
 export type CaseStatus = { 'Active' : null } |
   { 'Resolved' : null } |
   { 'Pending' : null };
+export interface Feedback {
+  'comment' : string,
+  'timestamp' : Time,
+  'rating' : bigint,
+  'principalId' : Principal,
+}
 export interface GuidanceHistory {
   'id' : bigint,
   'queryText' : string,
@@ -43,6 +51,14 @@ export interface Lawyer {
   'rating' : number,
   'location' : string,
 }
+export interface LawyerProfile {
+  'name' : string,
+  'specialization' : string,
+  'phone' : string,
+  'barNumber' : string,
+  'location' : string,
+  'principalId' : Principal,
+}
 export type Time = bigint;
 export interface UploadedDocument {
   'id' : bigint,
@@ -50,17 +66,43 @@ export interface UploadedDocument {
   'filename' : string,
   'uploadDate' : Time,
 }
+export interface UserProfile {
+  'name' : string,
+  'phone' : string,
+  'principalId' : Principal,
+}
 export interface _SERVICE {
-  'addCase' : ActorMethod<[Case], undefined>,
-  'addDocument' : ActorMethod<[UploadedDocument], undefined>,
-  'addGuidanceHistory' : ActorMethod<[GuidanceHistory], undefined>,
+  'addCase' : ActorMethod<[Case], { 'id' : bigint }>,
+  'addDocument' : ActorMethod<[UploadedDocument], { 'id' : bigint }>,
+  'addGuidanceHistory' : ActorMethod<[GuidanceHistory], { 'id' : bigint }>,
+  'assignCaseToLawyer' : ActorMethod<
+    [{ 'lawyerPrincipal' : Principal, 'caseId' : bigint }],
+    boolean
+  >,
+  'getAllFeedback' : ActorMethod<[], Array<Feedback>>,
   'getCases' : ActorMethod<[], Array<Case>>,
   'getDocuments' : ActorMethod<[], Array<UploadedDocument>>,
   'getGuidanceHistory' : ActorMethod<[], Array<GuidanceHistory>>,
+  'getLawyerCases' : ActorMethod<[], Array<Case>>,
+  'getLawyerProfile' : ActorMethod<[], [] | [LawyerProfile]>,
   'getLawyerProfiles' : ActorMethod<[], Array<Lawyer>>,
+  'getMyProfile' : ActorMethod<[], [] | [UserProfile]>,
+  'getUserFeedback' : ActorMethod<[], [] | [Feedback]>,
   'getUserLanguage' : ActorMethod<[], [] | [Language]>,
   'initialize' : ActorMethod<[], undefined>,
+  'listAllLawyers' : ActorMethod<[], Array<LawyerProfile>>,
+  'listAllUsersAdmin' : ActorMethod<[], Array<UserProfile>>,
+  'registerLawyer' : ActorMethod<
+    [string, string, string, string, string],
+    boolean
+  >,
+  'registerOrUpdateUser' : ActorMethod<[string, string], boolean>,
   'setUserLanguage' : ActorMethod<[Language], undefined>,
+  'submitFeedback' : ActorMethod<[bigint, string], boolean>,
+  'updateCaseStatus' : ActorMethod<
+    [{ 'caseId' : bigint, 'newStatus' : CaseStatus }],
+    boolean
+  >,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

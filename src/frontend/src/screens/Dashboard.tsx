@@ -6,10 +6,12 @@ import {
   Mic,
   Scale,
   Users,
+  Volume2,
+  VolumeX,
   X,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { VakyomLogo } from "../components/VakyomLogo";
 import { useTranslation } from "../i18n/useTranslation";
 
@@ -27,9 +29,93 @@ interface DashboardProps {
 
 const WHATSAPP_URL = "https://wa.me/918152889991";
 
+function splitIntoChunks(text: string, maxLen = 180): string[] {
+  const sentences = text.split(/(?<=[।.!?])\s+/);
+  const chunks: string[] = [];
+  let current = "";
+  for (const s of sentences) {
+    if (`${current} ${s}`.trim().length > maxLen) {
+      if (current.trim()) chunks.push(current.trim());
+      current = s;
+    } else {
+      current = current ? `${current} ${s}` : s;
+    }
+  }
+  if (current.trim()) chunks.push(current.trim());
+  return chunks.length > 0 ? chunks : [text.slice(0, maxLen)];
+}
+
+function ttsUrl(text: string, lang: string): string {
+  const langCode = lang.split("-")[0];
+  return `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=${langCode}&client=tw-ob`;
+}
+
 export function Dashboard({ onNavigate }: DashboardProps) {
   const { t } = useTranslation();
   const [showFounderModal, setShowFounderModal] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const mutedRef = useRef(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const chunksRef = useRef<string[]>([]);
+  const stoppedRef = useRef(false);
+
+  const stopAudio = useCallback(() => {
+    stoppedRef.current = true;
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = "";
+      audioRef.current = null;
+    }
+    setSpeaking(false);
+  }, []);
+
+  const playChunk = useCallback(
+    (index: number) => {
+      if (stoppedRef.current || mutedRef.current) return;
+      const chunks = chunksRef.current;
+      if (index >= chunks.length) {
+        setSpeaking(false);
+        return;
+      }
+      setSpeaking(true);
+      const url = ttsUrl(chunks[index], t.welcome_speech_lang);
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      audio.onended = () => playChunk(index + 1);
+      audio.onerror = () => setSpeaking(false);
+      audio.play().catch(() => setSpeaking(false));
+    },
+    [t.welcome_speech_lang],
+  );
+
+  const speakMessage = useCallback(() => {
+    if (mutedRef.current) return;
+    stopAudio();
+    stoppedRef.current = false;
+    chunksRef.current = splitIntoChunks(t.founder_modal_message);
+    playChunk(0);
+  }, [t.founder_modal_message, stopAudio, playChunk]);
+
+  // Auto-play when modal opens
+  useEffect(() => {
+    if (showFounderModal) {
+      const timer = setTimeout(speakMessage, 600);
+      return () => clearTimeout(timer);
+    }
+    stopAudio();
+  }, [showFounderModal, speakMessage, stopAudio]);
+
+  const toggleMute = () => {
+    const next = !muted;
+    setMuted(next);
+    mutedRef.current = next;
+    if (next) {
+      stopAudio();
+    } else {
+      speakMessage();
+    }
+  };
 
   const CARDS: {
     id: DashboardScreen;
@@ -90,7 +176,13 @@ export function Dashboard({ onNavigate }: DashboardProps) {
     }
   };
 
+  const handleCloseModal = () => {
+    stopAudio();
+    setShowFounderModal(false);
+  };
+
   const handleStartWhatsApp = () => {
+    stopAudio();
     setShowFounderModal(false);
     window.open(WHATSAPP_URL, "_blank", "noopener,noreferrer");
   };
@@ -197,12 +289,20 @@ export function Dashboard({ onNavigate }: DashboardProps) {
                 {/* Header row */}
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-3">
-                    <div
+                    <motion.div
                       className="rounded-xl p-2"
                       style={{ background: "white" }}
+                      animate={
+                        speaking ? { scale: [1, 1.08, 1] } : { scale: 1 }
+                      }
+                      transition={
+                        speaking
+                          ? { duration: 1.2, repeat: Number.POSITIVE_INFINITY }
+                          : {}
+                      }
                     >
                       <VakyomLogo size={32} />
-                    </div>
+                    </motion.div>
                     <div>
                       <p
                         className="font-bold text-sm"
@@ -215,12 +315,42 @@ export function Dashboard({ onNavigate }: DashboardProps) {
                   </div>
                   <button
                     type="button"
-                    onClick={() => setShowFounderModal(false)}
+                    onClick={handleCloseModal}
                     className="text-white/40 hover:text-white/80 transition-colors"
                   >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
+
+                {/* Sound wave indicator */}
+                {speaking && (
+                  <motion.div
+                    className="flex items-center gap-1 mb-4"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    {[0, 1, 2, 3, 4].map((i) => (
+                      <motion.div
+                        key={i}
+                        className="w-1 rounded-full"
+                        style={{ backgroundColor: "oklch(0.72 0.14 78)" }}
+                        animate={{ height: [4, 16, 4] }}
+                        transition={{
+                          duration: 0.6,
+                          repeat: Number.POSITIVE_INFINITY,
+                          delay: i * 0.1,
+                          ease: "easeInOut",
+                        }}
+                      />
+                    ))}
+                    <span
+                      className="ml-2 text-xs"
+                      style={{ color: "oklch(0.72 0.14 78)" }}
+                    >
+                      {t.splash_speaking}
+                    </span>
+                  </motion.div>
+                )}
 
                 {/* Message */}
                 <div
@@ -251,7 +381,25 @@ export function Dashboard({ onNavigate }: DashboardProps) {
                 <div className="flex gap-3">
                   <button
                     type="button"
-                    onClick={() => setShowFounderModal(false)}
+                    onClick={toggleMute}
+                    className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                    style={{
+                      background: "oklch(0.18 0.05 250)",
+                      border: "1px solid oklch(0.72 0.14 78 / 0.3)",
+                      color: muted
+                        ? "rgba(255,255,255,0.4)"
+                        : "oklch(0.72 0.14 78)",
+                    }}
+                  >
+                    {muted ? (
+                      <VolumeX className="w-4 h-4" />
+                    ) : (
+                      <Volume2 className="w-4 h-4" />
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCloseModal}
                     className="px-4 py-2.5 rounded-xl text-sm font-medium transition-all"
                     style={{
                       background: "oklch(0.18 0.05 250)",

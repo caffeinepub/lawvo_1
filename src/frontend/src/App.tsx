@@ -1,29 +1,37 @@
 import { Toaster } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Language } from "./backend.d";
 import { WelcomeSplash } from "./components/WelcomeSplash";
 import { useActor } from "./hooks/useActor";
 import { LanguageProvider, useTranslation } from "./i18n/useTranslation";
 import { About } from "./screens/About";
+import { AdminScreen } from "./screens/AdminScreen";
 import { Dashboard, type DashboardScreen } from "./screens/Dashboard";
 import { DocumentScanner } from "./screens/DocumentScanner";
 import { LanguageSelect } from "./screens/LanguageSelect";
+import { LawyerDashboardScreen } from "./screens/LawyerDashboardScreen";
+import { LawyerLoginScreen } from "./screens/LawyerLoginScreen";
 import { LawyerMarketplace } from "./screens/LawyerMarketplace";
 import { LegalGuidance } from "./screens/LegalGuidance";
+import { LoginScreen } from "./screens/LoginScreen";
 import { MyCases } from "./screens/MyCases";
 import { VoiceAssistant } from "./screens/VoiceAssistant";
 import { Welcome } from "./screens/Welcome";
 
-type Screen = "welcome" | "language" | "dashboard" | DashboardScreen;
+type Screen =
+  | "welcome"
+  | "login"
+  | "language"
+  | "dashboard"
+  | "lawyer-login"
+  | "lawyer-dashboard"
+  | "admin"
+  | DashboardScreen;
 
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: {
-      retry: 1,
-      staleTime: 30_000,
-    },
+    queries: { retry: 1, staleTime: 30_000 },
   },
 });
 
@@ -83,7 +91,14 @@ function WhatsAppButton() {
 }
 
 function AppContent() {
-  const [screen, setScreen] = useState<Screen>("welcome");
+  const [screen, setScreen] = useState<Screen>(() => {
+    const role = localStorage.getItem("vakyom_role");
+    const userName = localStorage.getItem("vakyom_user_name");
+    const lawyerName = localStorage.getItem("vakyom_lawyer_name");
+    if (role === "lawyer" && lawyerName) return "lawyer-dashboard";
+    if (userName) return "language";
+    return "welcome";
+  });
   const [showSplash, setShowSplash] = useState(false);
   const { setLanguage } = useTranslation();
   const { actor } = useActor();
@@ -102,17 +117,35 @@ function AppContent() {
     setShowSplash(true);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("vakyom_user_name");
+    localStorage.removeItem("vakyom_lawyer_name");
+    localStorage.removeItem("vakyom_role");
+    setScreen("login");
+  };
+
   return (
     <>
       {screen === "welcome" && (
-        <Welcome onGetStarted={() => setScreen("language")} />
+        <Welcome onGetStarted={() => setScreen("login")} />
       )}
+
+      {screen === "login" && (
+        <LoginScreen
+          onSuccess={() => setScreen("language")}
+          onLawyerLogin={() => setScreen("lawyer-login")}
+          onAdminLogin={() => setScreen("admin")}
+        />
+      )}
+
       {screen === "language" && (
         <LanguageSelect onContinue={handleLanguageContinue} />
       )}
+
       {screen === "dashboard" && (
         <Dashboard onNavigate={(s: DashboardScreen) => setScreen(s)} />
       )}
+
       {screen === "voice" && <VoiceAssistant onBack={goToDashboard} />}
       {screen === "document" && <DocumentScanner onBack={goToDashboard} />}
       {screen === "guidance" && (
@@ -124,6 +157,20 @@ function AppContent() {
       {screen === "lawyers" && <LawyerMarketplace onBack={goToDashboard} />}
       {screen === "cases" && <MyCases onBack={goToDashboard} />}
       {screen === "about" && <About onBack={goToDashboard} />}
+
+      {screen === "lawyer-login" && (
+        <LawyerLoginScreen
+          onSuccess={() => setScreen("lawyer-dashboard")}
+          onBack={() => setScreen("login")}
+        />
+      )}
+
+      {screen === "lawyer-dashboard" && (
+        <LawyerDashboardScreen onLogout={handleLogout} />
+      )}
+
+      {screen === "admin" && <AdminScreen onLogout={handleLogout} />}
+
       {showSplash && <WelcomeSplash onDismiss={() => setShowSplash(false)} />}
       <WhatsAppButton />
       <Toaster />
