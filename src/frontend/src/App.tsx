@@ -91,14 +91,7 @@ function WhatsAppButton() {
 }
 
 function AppContent() {
-  const [screen, setScreen] = useState<Screen>(() => {
-    const role = localStorage.getItem("vakyom_role");
-    const userName = localStorage.getItem("vakyom_user_name");
-    const lawyerName = localStorage.getItem("vakyom_lawyer_name");
-    if (role === "lawyer" && lawyerName) return "lawyer-dashboard";
-    if (userName) return "language";
-    return "welcome";
-  });
+  const [screen, setScreen] = useState<Screen>("welcome");
   const [showSplash, setShowSplash] = useState(false);
   const { setLanguage } = useTranslation();
   const { actor } = useActor();
@@ -111,6 +104,21 @@ function AppContent() {
 
   const goToDashboard = () => setScreen("dashboard");
 
+  const handleGetStarted = () => {
+    const role = localStorage.getItem("vakyom_role");
+    const lawyerName = localStorage.getItem("vakyom_lawyer_name");
+    if (role === "lawyer" && lawyerName) {
+      setScreen("lawyer-dashboard");
+      return;
+    }
+    const userName = localStorage.getItem("vakyom_user_name");
+    if (userName) {
+      setScreen("language");
+      return;
+    }
+    setScreen("login");
+  };
+
   const handleLanguageContinue = (lang: Language) => {
     setLanguage(lang);
     setScreen("dashboard");
@@ -121,14 +129,12 @@ function AppContent() {
     localStorage.removeItem("vakyom_user_name");
     localStorage.removeItem("vakyom_lawyer_name");
     localStorage.removeItem("vakyom_role");
-    setScreen("login");
+    setScreen("welcome");
   };
 
   return (
     <>
-      {screen === "welcome" && (
-        <Welcome onGetStarted={() => setScreen("login")} />
-      )}
+      {screen === "welcome" && <Welcome onGetStarted={handleGetStarted} />}
 
       {screen === "login" && (
         <LoginScreen
