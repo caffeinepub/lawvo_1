@@ -1,4 +1,3 @@
-
 import Time "mo:core/Time";
 import Array "mo:core/Array";
 import Map "mo:core/Map";
@@ -8,7 +7,6 @@ import Nat "mo:core/Nat";
 import Char "mo:core/Char";
 import Order "mo:core/Order";
 import Iter "mo:core/Iter";
-
 
 actor {
   type Language = {
@@ -314,6 +312,12 @@ actor {
     true;
   };
 
+  public shared ({ caller }) func deleteUser(principalId : Principal) : async Bool {
+    let existed = users.containsKey(principalId);
+    users.remove(principalId);
+    existed;
+  };
+
   public query ({ caller }) func getMyProfile() : async ?UserProfile {
     users.get(caller);
   };
@@ -347,6 +351,12 @@ actor {
     };
     lawyers.add(caller, newLawyer);
     true;
+  };
+
+  public shared ({ caller }) func deleteLawyer(principalId : Principal) : async Bool {
+    let existed = lawyers.containsKey(principalId);
+    lawyers.remove(principalId);
+    existed;
   };
 
   public query ({ caller }) func getLawyerProfile() : async ?LawyerProfile {

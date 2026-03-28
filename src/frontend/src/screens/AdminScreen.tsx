@@ -10,15 +10,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useActor } from "@/hooks/useActor";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Eye,
   EyeOff,
+  Loader2,
   LogOut,
   MessageSquare,
   Scale,
   Shield,
   Star,
+  Trash2,
   Users,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
@@ -201,7 +203,14 @@ function AdminLogin({ onAuthenticate }: { onAuthenticate: () => void }) {
 
 function AdminPanel({ onLogout }: { onLogout: () => void }) {
   const { actor, isFetching } = useActor();
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("users");
+  const [confirmDeleteUser, setConfirmDeleteUser] = useState<string | null>(
+    null,
+  );
+  const [confirmDeleteLawyer, setConfirmDeleteLawyer] = useState<string | null>(
+    null,
+  );
 
   const { data: users, isLoading: usersLoading } = useQuery({
     queryKey: ["admin-users"],
@@ -237,6 +246,30 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
       return actor.getCases();
     },
     enabled: !!actor && !isFetching,
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: async (principalId: string) => {
+      if (!actor) throw new Error("No actor");
+      const { Principal } = await import("@icp-sdk/core/principal");
+      return actor.deleteUser(Principal.fromText(principalId));
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      setConfirmDeleteUser(null);
+    },
+  });
+
+  const deleteLawyerMutation = useMutation({
+    mutationFn: async (principalId: string) => {
+      if (!actor) throw new Error("No actor");
+      const { Principal } = await import("@icp-sdk/core/principal");
+      return actor.deleteLawyer(Principal.fromText(principalId));
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-lawyers"] });
+      setConfirmDeleteLawyer(null);
+    },
   });
 
   const formatDate = (ts: bigint) =>
@@ -494,48 +527,173 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
                         >
                           Principal ID
                         </TableHead>
+                        <TableHead
+                          style={{
+                            color: "rgba(212,175,55,0.8)",
+                            fontWeight: 600,
+                            width: 120,
+                          }}
+                        >
+                          Actions
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {users.map((u, i) => (
-                        <TableRow
-                          key={u.principalId.toString()}
-                          data-ocid={`admin_panel.users.row.${i + 1}`}
-                          style={{
-                            borderBottom: "1px solid rgba(255,255,255,0.05)",
-                          }}
-                        >
-                          <TableCell
+                      {users.map((u, i) => {
+                        const pid = u.principalId.toString();
+                        const isDeleting =
+                          deleteUserMutation.isPending &&
+                          deleteUserMutation.variables === pid;
+                        const isConfirming = confirmDeleteUser === pid;
+                        return (
+                          <TableRow
+                            key={pid}
+                            data-ocid={`admin_panel.users.row.${i + 1}`}
                             style={{
-                              color: "rgba(255,255,255,0.4)",
-                              fontSize: "0.82rem",
+                              borderBottom: "1px solid rgba(255,255,255,0.05)",
+                              opacity: isDeleting ? 0.5 : 1,
+                              transition: "opacity 0.2s",
                             }}
                           >
-                            {i + 1}
-                          </TableCell>
-                          <TableCell style={{ fontWeight: 600, color: "#fff" }}>
-                            {u.name}
-                          </TableCell>
-                          <TableCell
-                            style={{
-                              color: "rgba(255,255,255,0.7)",
-                              fontFamily: "monospace",
-                              fontSize: "0.82rem",
-                            }}
-                          >
-                            {u.phone}
-                          </TableCell>
-                          <TableCell
-                            style={{
-                              color: "rgba(255,255,255,0.4)",
-                              fontFamily: "monospace",
-                              fontSize: "0.7rem",
-                            }}
-                          >
-                            {u.principalId.toString().slice(0, 16)}…
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                            <TableCell
+                              style={{
+                                color: "rgba(255,255,255,0.4)",
+                                fontSize: "0.82rem",
+                              }}
+                            >
+                              {i + 1}
+                            </TableCell>
+                            <TableCell
+                              style={{ fontWeight: 600, color: "#fff" }}
+                            >
+                              {u.name}
+                            </TableCell>
+                            <TableCell
+                              style={{
+                                color: "rgba(255,255,255,0.7)",
+                                fontFamily: "monospace",
+                                fontSize: "0.82rem",
+                              }}
+                            >
+                              {u.phone}
+                            </TableCell>
+                            <TableCell
+                              style={{
+                                color: "rgba(255,255,255,0.4)",
+                                fontFamily: "monospace",
+                                fontSize: "0.7rem",
+                              }}
+                            >
+                              {pid.slice(0, 16)}…
+                            </TableCell>
+                            <TableCell>
+                              {isDeleting ? (
+                                <div
+                                  data-ocid={`admin_panel.users.loading_state.${i + 1}`}
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 4,
+                                    color: "rgba(255,255,255,0.4)",
+                                    fontSize: "0.75rem",
+                                  }}
+                                >
+                                  <Loader2 size={13} className="animate-spin" />
+                                  Deleting…
+                                </div>
+                              ) : isConfirming ? (
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 4,
+                                  }}
+                                >
+                                  <span
+                                    style={{
+                                      fontSize: "0.72rem",
+                                      color: "rgba(255,180,180,0.9)",
+                                      whiteSpace: "nowrap",
+                                    }}
+                                  >
+                                    Confirm?
+                                  </span>
+                                  <button
+                                    type="button"
+                                    data-ocid={`admin_panel.users.confirm_button.${i + 1}`}
+                                    onClick={() =>
+                                      deleteUserMutation.mutate(pid)
+                                    }
+                                    style={{
+                                      background: "rgba(220,50,50,0.85)",
+                                      border: "none",
+                                      borderRadius: 5,
+                                      color: "#fff",
+                                      fontSize: "0.7rem",
+                                      fontWeight: 700,
+                                      padding: "2px 8px",
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    Yes
+                                  </button>
+                                  <button
+                                    type="button"
+                                    data-ocid={`admin_panel.users.cancel_button.${i + 1}`}
+                                    onClick={() => setConfirmDeleteUser(null)}
+                                    style={{
+                                      background: "rgba(255,255,255,0.1)",
+                                      border: "none",
+                                      borderRadius: 5,
+                                      color: "rgba(255,255,255,0.6)",
+                                      fontSize: "0.7rem",
+                                      padding: "2px 8px",
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    No
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  type="button"
+                                  data-ocid={`admin_panel.users.delete_button.${i + 1}`}
+                                  onClick={() => setConfirmDeleteUser(pid)}
+                                  title="Delete user"
+                                  style={{
+                                    background: "none",
+                                    border: "1px solid rgba(220,50,50,0.3)",
+                                    borderRadius: 6,
+                                    color: "rgba(220,50,50,0.7)",
+                                    cursor: "pointer",
+                                    padding: "4px 7px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    transition: "all 0.15s",
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.background =
+                                      "rgba(220,50,50,0.15)";
+                                    e.currentTarget.style.color =
+                                      "rgba(255,80,80,1)";
+                                    e.currentTarget.style.borderColor =
+                                      "rgba(220,50,50,0.7)";
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = "none";
+                                    e.currentTarget.style.color =
+                                      "rgba(220,50,50,0.7)";
+                                    e.currentTarget.style.borderColor =
+                                      "rgba(220,50,50,0.3)";
+                                  }}
+                                >
+                                  <Trash2 size={13} />
+                                </button>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 </div>
@@ -604,81 +762,203 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
                 </div>
               ) : (
                 <div className="grid gap-3 sm:grid-cols-2">
-                  {lawyers.map((l, i) => (
-                    <motion.div
-                      key={l.principalId.toString()}
-                      data-ocid={`admin_panel.lawyers.card.${i + 1}`}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: i * 0.05 }}
-                      style={{
-                        background: "rgba(17,25,55,0.8)",
-                        border: "1px solid rgba(212,175,55,0.15)",
-                        borderRadius: 14,
-                        padding: "1.1rem",
-                      }}
-                    >
-                      <div
+                  {lawyers.map((l, i) => {
+                    const pid = l.principalId.toString();
+                    const isDeleting =
+                      deleteLawyerMutation.isPending &&
+                      deleteLawyerMutation.variables === pid;
+                    const isConfirming = confirmDeleteLawyer === pid;
+                    return (
+                      <motion.div
+                        key={pid}
+                        data-ocid={`admin_panel.lawyers.card.${i + 1}`}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: i * 0.05 }}
                         style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          marginBottom: 8,
+                          background: "rgba(17,25,55,0.8)",
+                          border: "1px solid rgba(212,175,55,0.15)",
+                          borderRadius: 14,
+                          padding: "1.1rem",
+                          position: "relative",
+                          opacity: isDeleting ? 0.5 : 1,
+                          transition: "opacity 0.2s",
                         }}
                       >
-                        <h3
+                        {/* Top row: name + badge + delete */}
+                        <div
                           style={{
-                            fontWeight: 700,
-                            color: "#fff",
-                            fontSize: "0.95rem",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "flex-start",
+                            marginBottom: 8,
+                            gap: 8,
                           }}
                         >
-                          {l.name}
-                        </h3>
-                        <Badge
-                          variant="outline"
+                          <h3
+                            style={{
+                              fontWeight: 700,
+                              color: "#fff",
+                              fontSize: "0.95rem",
+                              flex: 1,
+                            }}
+                          >
+                            {l.name}
+                          </h3>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 6,
+                            }}
+                          >
+                            <Badge
+                              variant="outline"
+                              style={{
+                                fontSize: "0.7rem",
+                                color: "oklch(0.72 0.14 78)",
+                                borderColor: "rgba(212,175,55,0.4)",
+                              }}
+                            >
+                              {l.specialization}
+                            </Badge>
+                            {isDeleting ? (
+                              <div
+                                data-ocid={`admin_panel.lawyers.loading_state.${i + 1}`}
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  color: "rgba(255,255,255,0.4)",
+                                }}
+                              >
+                                <Loader2 size={13} className="animate-spin" />
+                              </div>
+                            ) : isConfirming ? (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 4,
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    fontSize: "0.68rem",
+                                    color: "rgba(255,180,180,0.9)",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  Delete?
+                                </span>
+                                <button
+                                  type="button"
+                                  data-ocid={`admin_panel.lawyers.confirm_button.${i + 1}`}
+                                  onClick={() =>
+                                    deleteLawyerMutation.mutate(pid)
+                                  }
+                                  style={{
+                                    background: "rgba(220,50,50,0.85)",
+                                    border: "none",
+                                    borderRadius: 5,
+                                    color: "#fff",
+                                    fontSize: "0.68rem",
+                                    fontWeight: 700,
+                                    padding: "2px 7px",
+                                    cursor: "pointer",
+                                  }}
+                                >
+                                  Yes
+                                </button>
+                                <button
+                                  type="button"
+                                  data-ocid={`admin_panel.lawyers.cancel_button.${i + 1}`}
+                                  onClick={() => setConfirmDeleteLawyer(null)}
+                                  style={{
+                                    background: "rgba(255,255,255,0.1)",
+                                    border: "none",
+                                    borderRadius: 5,
+                                    color: "rgba(255,255,255,0.6)",
+                                    fontSize: "0.68rem",
+                                    padding: "2px 7px",
+                                    cursor: "pointer",
+                                  }}
+                                >
+                                  No
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                data-ocid={`admin_panel.lawyers.delete_button.${i + 1}`}
+                                onClick={() => setConfirmDeleteLawyer(pid)}
+                                title="Delete lawyer"
+                                style={{
+                                  background: "none",
+                                  border: "1px solid rgba(220,50,50,0.3)",
+                                  borderRadius: 6,
+                                  color: "rgba(220,50,50,0.7)",
+                                  cursor: "pointer",
+                                  padding: "4px 7px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  transition: "all 0.15s",
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.background =
+                                    "rgba(220,50,50,0.15)";
+                                  e.currentTarget.style.color =
+                                    "rgba(255,80,80,1)";
+                                  e.currentTarget.style.borderColor =
+                                    "rgba(220,50,50,0.7)";
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.background = "none";
+                                  e.currentTarget.style.color =
+                                    "rgba(220,50,50,0.7)";
+                                  e.currentTarget.style.borderColor =
+                                    "rgba(220,50,50,0.3)";
+                                }}
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                        <div
                           style={{
-                            fontSize: "0.7rem",
-                            color: "oklch(0.72 0.14 78)",
-                            borderColor: "rgba(212,175,55,0.4)",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 3,
                           }}
                         >
-                          {l.specialization}
-                        </Badge>
-                      </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: 3,
-                        }}
-                      >
-                        <span
-                          style={{
-                            fontSize: "0.78rem",
-                            color: "rgba(255,255,255,0.5)",
-                          }}
-                        >
-                          📞 {l.phone}
-                        </span>
-                        <span
-                          style={{
-                            fontSize: "0.78rem",
-                            color: "rgba(255,255,255,0.5)",
-                          }}
-                        >
-                          🏛 {l.barNumber}
-                        </span>
-                        <span
-                          style={{
-                            fontSize: "0.78rem",
-                            color: "rgba(255,255,255,0.5)",
-                          }}
-                        >
-                          📍 {l.location}
-                        </span>
-                      </div>
-                    </motion.div>
-                  ))}
+                          <span
+                            style={{
+                              fontSize: "0.78rem",
+                              color: "rgba(255,255,255,0.5)",
+                            }}
+                          >
+                            📞 {l.phone}
+                          </span>
+                          <span
+                            style={{
+                              fontSize: "0.78rem",
+                              color: "rgba(255,255,255,0.5)",
+                            }}
+                          >
+                            🏛 {l.barNumber}
+                          </span>
+                          <span
+                            style={{
+                              fontSize: "0.78rem",
+                              color: "rgba(255,255,255,0.5)",
+                            }}
+                          >
+                            📍 {l.location}
+                          </span>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
                 </div>
               )}
             </motion.div>

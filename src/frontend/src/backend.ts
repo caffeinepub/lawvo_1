@@ -168,6 +168,8 @@ export interface backendInterface {
         lawyerPrincipal: Principal;
         caseId: bigint;
     }): Promise<boolean>;
+    deleteLawyer(principalId: Principal): Promise<boolean>;
+    deleteUser(principalId: Principal): Promise<boolean>;
     getAllFeedback(): Promise<Array<Feedback>>;
     getCases(): Promise<Array<Case>>;
     getDocuments(): Promise<Array<UploadedDocument>>;
@@ -255,6 +257,34 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.assignCaseToLawyer(arg0);
+            return result;
+        }
+    }
+    async deleteLawyer(arg0: Principal): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteLawyer(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteLawyer(arg0);
+            return result;
+        }
+    }
+    async deleteUser(arg0: Principal): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteUser(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteUser(arg0);
             return result;
         }
     }

@@ -86,6 +86,8 @@ export interface backendInterface {
         lawyerPrincipal: Principal;
         caseId: bigint;
     }): Promise<boolean>;
+    deleteLawyer(principalId: Principal): Promise<boolean>;
+    deleteUser(principalId: Principal): Promise<boolean>;
     getAllFeedback(): Promise<Array<Feedback>>;
     getCases(): Promise<Array<Case>>;
     getDocuments(): Promise<Array<UploadedDocument>>;

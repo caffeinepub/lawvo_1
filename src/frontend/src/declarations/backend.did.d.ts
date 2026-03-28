@@ -79,6 +79,8 @@ export interface _SERVICE {
     [{ 'lawyerPrincipal' : Principal, 'caseId' : bigint }],
     boolean
   >,
+  'deleteLawyer' : ActorMethod<[Principal], boolean>,
+  'deleteUser' : ActorMethod<[Principal], boolean>,
   'getAllFeedback' : ActorMethod<[], Array<Feedback>>,
   'getCases' : ActorMethod<[], Array<Case>>,
   'getDocuments' : ActorMethod<[], Array<UploadedDocument>>,
