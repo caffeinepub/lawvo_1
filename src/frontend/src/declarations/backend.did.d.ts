@@ -59,6 +59,13 @@ export interface LawyerProfile {
   'location' : string,
   'principalId' : Principal,
 }
+export interface LoginRecord {
+  'name' : string,
+  'phone' : string,
+  'role' : string,
+  'timestamp' : Time,
+  'principalId' : Principal,
+}
 export type Time = bigint;
 export interface UploadedDocument {
   'id' : bigint,
@@ -82,6 +89,7 @@ export interface _SERVICE {
   'deleteLawyer' : ActorMethod<[Principal], boolean>,
   'deleteUser' : ActorMethod<[Principal], boolean>,
   'getAllFeedback' : ActorMethod<[], Array<Feedback>>,
+  'getAllLoginRecords' : ActorMethod<[], Array<LoginRecord>>,
   'getCases' : ActorMethod<[], Array<Case>>,
   'getDocuments' : ActorMethod<[], Array<UploadedDocument>>,
   'getGuidanceHistory' : ActorMethod<[], Array<GuidanceHistory>>,
@@ -98,6 +106,7 @@ export interface _SERVICE {
     [string, string, string, string, string],
     boolean
   >,
+  'registerLawyerLogin' : ActorMethod<[string, string], boolean>,
   'registerOrUpdateUser' : ActorMethod<[string, string], boolean>,
   'setUserLanguage' : ActorMethod<[Language], undefined>,
   'submitFeedback' : ActorMethod<[bigint, string], boolean>,

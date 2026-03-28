@@ -134,7 +134,12 @@ function AppContent() {
 
   return (
     <>
-      {screen === "welcome" && <Welcome onGetStarted={handleGetStarted} />}
+      {screen === "welcome" && (
+        <Welcome
+          onGetStarted={handleGetStarted}
+          onAdminLogin={() => setScreen("admin")}
+        />
+      )}
 
       {screen === "login" && (
         <LoginScreen

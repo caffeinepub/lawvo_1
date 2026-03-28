@@ -65,6 +65,13 @@ export const UserProfile = IDL.Record({
   'phone' : IDL.Text,
   'principalId' : IDL.Principal,
 });
+export const LoginRecord = IDL.Record({
+  'name' : IDL.Text,
+  'phone' : IDL.Text,
+  'role' : IDL.Text,
+  'timestamp' : Time,
+  'principalId' : IDL.Principal,
+});
 export const Language = IDL.Variant({
   'Telugu' : IDL.Null,
   'Kannada' : IDL.Null,
@@ -94,6 +101,7 @@ export const idlService = IDL.Service({
   'deleteLawyer' : IDL.Func([IDL.Principal], [IDL.Bool], []),
   'deleteUser' : IDL.Func([IDL.Principal], [IDL.Bool], []),
   'getAllFeedback' : IDL.Func([], [IDL.Vec(Feedback)], ['query']),
+  'getAllLoginRecords' : IDL.Func([], [IDL.Vec(LoginRecord)], ['query']),
   'getCases' : IDL.Func([], [IDL.Vec(Case)], ['query']),
   'getDocuments' : IDL.Func([], [IDL.Vec(UploadedDocument)], ['query']),
   'getGuidanceHistory' : IDL.Func([], [IDL.Vec(GuidanceHistory)], ['query']),
@@ -111,6 +119,7 @@ export const idlService = IDL.Service({
       [IDL.Bool],
       [],
     ),
+  'registerLawyerLogin' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], []),
   'registerOrUpdateUser' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], []),
   'setUserLanguage' : IDL.Func([Language], [], []),
   'submitFeedback' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Bool], []),
@@ -120,8 +129,6 @@ export const idlService = IDL.Service({
       [],
     ),
 });
-
-export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
   const CaseStatus = IDL.Variant({
@@ -181,6 +188,13 @@ export const idlFactory = ({ IDL }) => {
     'phone' : IDL.Text,
     'principalId' : IDL.Principal,
   });
+  const LoginRecord = IDL.Record({
+    'name' : IDL.Text,
+    'phone' : IDL.Text,
+    'role' : IDL.Text,
+    'timestamp' : Time,
+    'principalId' : IDL.Principal,
+  });
   const Language = IDL.Variant({
     'Telugu' : IDL.Null,
     'Kannada' : IDL.Null,
@@ -210,6 +224,7 @@ export const idlFactory = ({ IDL }) => {
     'deleteLawyer' : IDL.Func([IDL.Principal], [IDL.Bool], []),
     'deleteUser' : IDL.Func([IDL.Principal], [IDL.Bool], []),
     'getAllFeedback' : IDL.Func([], [IDL.Vec(Feedback)], ['query']),
+    'getAllLoginRecords' : IDL.Func([], [IDL.Vec(LoginRecord)], ['query']),
     'getCases' : IDL.Func([], [IDL.Vec(Case)], ['query']),
     'getDocuments' : IDL.Func([], [IDL.Vec(UploadedDocument)], ['query']),
     'getGuidanceHistory' : IDL.Func([], [IDL.Vec(GuidanceHistory)], ['query']),
@@ -227,6 +242,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Bool],
         [],
       ),
+    'registerLawyerLogin' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], []),
     'registerOrUpdateUser' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], []),
     'setUserLanguage' : IDL.Func([Language], [], []),
     'submitFeedback' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Bool], []),

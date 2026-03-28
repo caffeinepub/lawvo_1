@@ -82,6 +82,14 @@ actor {
     principalId : Principal;
   };
 
+  type LoginRecord = {
+    name : Text;
+    phone : Text;
+    role : Text;
+    timestamp : Time.Time;
+    principalId : Principal;
+  };
+
   module Case {
     public func compare(case1 : Case, case2 : Case) : Order.Order {
       Nat.compare(case1.id, case2.id);
@@ -126,6 +134,7 @@ actor {
   let users = Map.empty<Principal, UserProfile>();
   let lawyers = Map.empty<Principal, LawyerProfile>();
   let feedbacks = Map.empty<Principal, Feedback>();
+  var loginHistory : [LoginRecord] = [];
   var nextCaseId = 1;
 
   // Persistent lawyer profiles
@@ -309,6 +318,30 @@ actor {
       principalId = caller;
     };
     users.add(caller, newProfile);
+
+    // Record every login event separately
+    let record : LoginRecord = {
+      name;
+      phone;
+      role = "user";
+      timestamp = Time.now();
+      principalId = caller;
+    };
+    loginHistory := Array.tabulate<LoginRecord>(loginHistory.size() + 1, func(i) { if (i < loginHistory.size()) loginHistory[i] else record });
+
+    true;
+  };
+
+  public shared ({ caller }) func registerLawyerLogin(name : Text, phone : Text) : async Bool {
+    // Record lawyer login event
+    let record : LoginRecord = {
+      name;
+      phone;
+      role = "lawyer";
+      timestamp = Time.now();
+      principalId = caller;
+    };
+    loginHistory := Array.tabulate<LoginRecord>(loginHistory.size() + 1, func(i) { if (i < loginHistory.size()) loginHistory[i] else record });
     true;
   };
 
@@ -328,6 +361,10 @@ actor {
 
   public query ({ caller }) func listAllUsersAdmin() : async [UserProfile] {
     users.values().toArray().sort();
+  };
+
+  public query ({ caller }) func getAllLoginRecords() : async [LoginRecord] {
+    loginHistory;
   };
 
   // LAWYER SPECIFIC FUNCTIONS

@@ -12,6 +12,7 @@ import {
 import { useActor } from "@/hooks/useActor";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  Clock,
   Eye,
   EyeOff,
   Loader2,
@@ -248,6 +249,15 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
     enabled: !!actor && !isFetching,
   });
 
+  const { data: loginRecords, isLoading: loginRecordsLoading } = useQuery({
+    queryKey: ["admin-login-records"],
+    queryFn: async () => {
+      if (!actor) return [];
+      return (actor as any).getAllLoginRecords();
+    },
+    enabled: !!actor && !isFetching,
+  });
+
   const deleteUserMutation = useMutation({
     mutationFn: async (principalId: string) => {
       if (!actor) throw new Error("No actor");
@@ -284,6 +294,7 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
     { id: "lawyers", label: "Lawyers", icon: Scale },
     { id: "feedback", label: "Feedback", icon: MessageSquare },
     { id: "cases", label: "Cases", icon: Shield },
+    { id: "logins", label: "Login History", icon: Clock },
   ];
 
   return (
@@ -1238,6 +1249,190 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
                       </motion.div>
                     );
                   })}
+                </div>
+              )}
+            </motion.div>
+          )}
+          {activeTab === "logins" && (
+            <motion.div
+              key="logins"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                  marginBottom: "1.5rem",
+                }}
+              >
+                <Clock size={20} style={{ color: "rgba(212,175,55,0.9)" }} />
+                <h2
+                  style={{
+                    color: "rgba(212,175,55,0.9)",
+                    fontSize: "1.1rem",
+                    fontWeight: 700,
+                    margin: 0,
+                  }}
+                >
+                  Login History
+                </h2>
+                {loginRecords && (
+                  <span
+                    style={{
+                      background: "rgba(212,175,55,0.15)",
+                      color: "rgba(212,175,55,0.9)",
+                      borderRadius: "999px",
+                      padding: "0.15rem 0.7rem",
+                      fontSize: "0.78rem",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {loginRecords.length} total
+                  </span>
+                )}
+              </div>
+              {loginRecordsLoading ? (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.75rem",
+                  }}
+                >
+                  {[1, 2, 3].map((i) => (
+                    <Skeleton
+                      key={i}
+                      style={{
+                        height: "72px",
+                        borderRadius: "12px",
+                        background: "rgba(255,255,255,0.06)",
+                      }}
+                    />
+                  ))}
+                </div>
+              ) : !loginRecords || loginRecords.length === 0 ? (
+                <div
+                  data-ocid="admin_panel.logins.empty_state"
+                  style={{
+                    textAlign: "center",
+                    padding: "3rem 1rem",
+                    color: "rgba(255,255,255,0.4)",
+                    background: "rgba(255,255,255,0.03)",
+                    borderRadius: "16px",
+                    border: "1px dashed rgba(212,175,55,0.2)",
+                  }}
+                >
+                  <Clock
+                    size={40}
+                    style={{ margin: "0 auto 1rem", opacity: 0.3 }}
+                  />
+                  <p>No login records yet</p>
+                </div>
+              ) : (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.75rem",
+                  }}
+                >
+                  {[...loginRecords].reverse().map((lr: any, i: number) => (
+                    <div
+                      key={`${lr.phone}-${lr.timestamp}-${i}`}
+                      data-ocid={`admin_panel.logins.item.${i + 1}`}
+                      style={{
+                        background: "rgba(255,255,255,0.04)",
+                        border: "1px solid rgba(212,175,55,0.15)",
+                        borderRadius: "12px",
+                        padding: "1rem 1.25rem",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "1rem",
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: "40px",
+                          height: "40px",
+                          borderRadius: "50%",
+                          background: "rgba(212,175,55,0.15)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          flexShrink: 0,
+                        }}
+                      >
+                        <Clock
+                          size={18}
+                          style={{ color: "rgba(212,175,55,0.8)" }}
+                        />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.6rem",
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          <span
+                            style={{
+                              color: "rgba(212,175,55,0.95)",
+                              fontWeight: 700,
+                              fontSize: "0.95rem",
+                            }}
+                          >
+                            {lr.name}
+                          </span>
+                          <span
+                            style={{
+                              background:
+                                lr.role === "lawyer"
+                                  ? "rgba(147,51,234,0.2)"
+                                  : "rgba(59,130,246,0.2)",
+                              color:
+                                lr.role === "lawyer"
+                                  ? "rgba(196,148,255,0.9)"
+                                  : "rgba(147,197,253,0.9)",
+                              border: `1px solid ${lr.role === "lawyer" ? "rgba(147,51,234,0.4)" : "rgba(59,130,246,0.4)"}`,
+                              borderRadius: "999px",
+                              padding: "0.1rem 0.6rem",
+                              fontSize: "0.72rem",
+                              fontWeight: 600,
+                              textTransform: "capitalize",
+                            }}
+                          >
+                            {lr.role === "lawyer" ? "Lawyer" : "User"}
+                          </span>
+                        </div>
+                        <div
+                          style={{
+                            color: "rgba(255,255,255,0.55)",
+                            fontSize: "0.82rem",
+                            marginTop: "0.2rem",
+                          }}
+                        >
+                          {lr.phone}
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          color: "rgba(255,255,255,0.4)",
+                          fontSize: "0.78rem",
+                          textAlign: "right",
+                          flexShrink: 0,
+                        }}
+                      >
+                        {formatDate(lr.timestamp)}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </motion.div>

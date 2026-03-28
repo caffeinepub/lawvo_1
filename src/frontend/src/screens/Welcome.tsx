@@ -22,9 +22,10 @@ import { useTranslation } from "../i18n/useTranslation";
 
 interface WelcomeProps {
   onGetStarted: () => void;
+  onAdminLogin: () => void;
 }
 
-export function Welcome({ onGetStarted }: WelcomeProps) {
+export function Welcome({ onGetStarted, onAdminLogin }: WelcomeProps) {
   const { t } = useTranslation();
   const [founderOpen, setFounderOpen] = useState(false);
 
@@ -59,6 +60,42 @@ export function Welcome({ onGetStarted }: WelcomeProps) {
 
   return (
     <div className="min-h-screen bg-navy text-white overflow-x-hidden">
+      {/* Admin Login Button */}
+      <button
+        type="button"
+        data-ocid="welcome.admin.button"
+        onClick={onAdminLogin}
+        style={{
+          position: "absolute",
+          top: "1rem",
+          right: "1rem",
+          zIndex: 50,
+          background: "transparent",
+          border: "1px solid rgba(212,175,55,0.6)",
+          color: "rgba(212,175,55,0.9)",
+          borderRadius: "8px",
+          padding: "0.35rem 0.75rem",
+          fontSize: "0.78rem",
+          fontWeight: 600,
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          gap: "0.35rem",
+          letterSpacing: "0.03em",
+          backdropFilter: "blur(6px)",
+        }}
+        onMouseEnter={(e) => {
+          (e.currentTarget as HTMLButtonElement).style.background =
+            "rgba(212,175,55,0.12)";
+        }}
+        onMouseLeave={(e) => {
+          (e.currentTarget as HTMLButtonElement).style.background =
+            "transparent";
+        }}
+      >
+        <Shield size={14} />
+        Admin
+      </button>
       {/* Hero */}
       <section className="relative min-h-screen flex flex-col items-center justify-center px-6 py-16">
         {/* Background pattern */}
