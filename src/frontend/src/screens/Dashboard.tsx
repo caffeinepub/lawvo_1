@@ -27,7 +27,7 @@ interface DashboardProps {
   onNavigate: (screen: DashboardScreen) => void;
 }
 
-const WHATSAPP_URL = "https://wa.me/918152889991";
+const WHATSAPP_BASE = "https://wa.me/918152889991";
 
 function splitIntoChunks(text: string, maxLen = 180): string[] {
   const sentences = text.split(/(?<=[।.!?])\s+/);
@@ -53,6 +53,9 @@ function ttsUrl(text: string, lang: string): string {
 export function Dashboard({ onNavigate }: DashboardProps) {
   const { t } = useTranslation();
   const [showFounderModal, setShowFounderModal] = useState(false);
+  const [selectedCard, setSelectedCard] = useState<DashboardScreen | null>(
+    null,
+  );
   const [speaking, setSpeaking] = useState(false);
   const [muted, setMuted] = useState(false);
   const mutedRef = useRef(false);
@@ -172,6 +175,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
     if (id === "about") {
       onNavigate(id);
     } else {
+      setSelectedCard(id);
       setShowFounderModal(true);
     }
   };
@@ -179,12 +183,28 @@ export function Dashboard({ onNavigate }: DashboardProps) {
   const handleCloseModal = () => {
     stopAudio();
     setShowFounderModal(false);
+    setSelectedCard(null);
   };
 
   const handleStartWhatsApp = () => {
     stopAudio();
     setShowFounderModal(false);
-    window.open(WHATSAPP_URL, "_blank", "noopener,noreferrer");
+
+    const whatsappMessages: Record<string, string> = {
+      voice: `Hello! I am contacting from Vakyom. My preferred language is: ${t.language_label}. I need help with: Voice / AI Legal Assistant. Please assist me.`,
+      document: `Hello! I am contacting from Vakyom. My preferred language is: ${t.language_label}. I need help with: Document Analysis. Please assist me.`,
+      guidance: `Hello! I am contacting from Vakyom. My preferred language is: ${t.language_label}. I need help with: Legal Guidance. Please assist me.`,
+      lawyers: `Hello! I am contacting from Vakyom. My preferred language is: ${t.language_label}. I need help with: Finding a Lawyer. Please assist me.`,
+      cases: `Hello! I am contacting from Vakyom. My preferred language is: ${t.language_label}. I need help with: My Case Status. Please assist me.`,
+    };
+
+    const message = selectedCard ? whatsappMessages[selectedCard] : null;
+    const url = message
+      ? `${WHATSAPP_BASE}?text=${encodeURIComponent(message)}`
+      : WHATSAPP_BASE;
+
+    setSelectedCard(null);
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   const founderLines = t.founder_modal_message
@@ -411,6 +431,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
                   </button>
                   <motion.button
                     type="button"
+                    data-ocid="dashboard.whatsapp.primary_button"
                     onClick={handleStartWhatsApp}
                     className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all"
                     style={{ background: "#25D366", color: "white" }}
