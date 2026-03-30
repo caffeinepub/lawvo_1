@@ -1,6 +1,6 @@
 import { Volume2, VolumeX } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "../i18n/useTranslation";
 
 interface WelcomeSplashProps {
@@ -8,27 +8,26 @@ interface WelcomeSplashProps {
   userName?: string;
 }
 
-// Split text into chunks of max `maxLen` characters, breaking at sentence boundaries
-function splitIntoChunks(text: string, maxLen = 180): string[] {
-  const sentences = text.split(/(?<=[।.!?])\s+/);
-  const chunks: string[] = [];
-  let current = "";
-  for (const s of sentences) {
-    if (`${current} ${s}`.trim().length > maxLen) {
-      if (current.trim()) chunks.push(current.trim());
-      current = s;
-    } else {
-      current = current ? `${current} ${s}` : s;
-    }
-  }
-  if (current.trim()) chunks.push(current.trim());
-  return chunks.length > 0 ? chunks : [text.slice(0, maxLen)];
+// Speak text using Web Speech API
+function speakText(
+  text: string,
+  lang: string,
+  onEnd?: () => void,
+  onError?: () => void,
+) {
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = lang;
+  utterance.rate = 0.9;
+  utterance.pitch = 1.0;
+  utterance.volume = 1.0;
+  if (onEnd) utterance.onend = onEnd;
+  if (onError) utterance.onerror = onError;
+  window.speechSynthesis.speak(utterance);
 }
 
-// Build Google Translate TTS URL (works in all browsers, supports all Indian languages)
-function ttsUrl(text: string, lang: string): string {
-  const langCode = lang.split("-")[0]; // "kn-IN" → "kn"
-  return `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=${langCode}&client=tw-ob`;
+function stopSpeech() {
+  window.speechSynthesis.cancel();
 }
 
 // Animated AI Legal Character SVG
@@ -220,12 +219,8 @@ export function WelcomeSplash({
 }: WelcomeSplashProps) {
   const { t } = useTranslation();
   const [speaking, setSpeaking] = useState(false);
-  const [muted, setMuted] = useState(false);
-  const mutedRef = useRef(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const chunksRef = useRef<string[]>([]);
-  const chunkIndexRef = useRef(0);
-  const stoppedRef = useRef(false);
+  // hasPlayed tracks whether user has tapped to hear the message
+  const [hasPlayed, setHasPlayed] = useState(false);
 
   // Personalize speech text with user's name
   const personalizedSpeech = userName
@@ -238,61 +233,24 @@ export function WelcomeSplash({
     : "";
 
   const stopAudio = useCallback(() => {
-    stoppedRef.current = true;
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.src = "";
-      audioRef.current = null;
-    }
+    stopSpeech();
     setSpeaking(false);
   }, []);
 
-  const playChunk = useCallback(
-    (index: number) => {
-      if (stoppedRef.current || mutedRef.current) return;
-      const chunks = chunksRef.current;
-      if (index >= chunks.length) {
-        setSpeaking(false);
-        return;
-      }
-      setSpeaking(true);
-      const url = ttsUrl(chunks[index], t.welcome_speech_lang);
-      const audio = new Audio(url);
-      audioRef.current = audio;
-      audio.onended = () => {
-        chunkIndexRef.current = index + 1;
-        playChunk(index + 1);
-      };
-      audio.onerror = () => {
-        setSpeaking(false);
-      };
-      audio.play().catch(() => setSpeaking(false));
-    },
-    [t.welcome_speech_lang],
-  );
-
+  // Must be called directly from a user click event for browser to allow audio
   const speakMessage = useCallback(() => {
-    if (mutedRef.current) return;
-    stopAudio();
-    stoppedRef.current = false;
-    chunksRef.current = splitIntoChunks(personalizedSpeech);
-    chunkIndexRef.current = 0;
-    playChunk(0);
-  }, [personalizedSpeech, stopAudio, playChunk]);
+    setSpeaking(true);
+    setHasPlayed(true);
+    speakText(
+      personalizedSpeech,
+      t.welcome_speech_lang,
+      () => setSpeaking(false),
+      () => setSpeaking(false),
+    );
+  }, [personalizedSpeech, t.welcome_speech_lang]);
 
-  useEffect(() => {
-    const timer = setTimeout(speakMessage, 800);
-    return () => {
-      clearTimeout(timer);
-      stopAudio();
-    };
-  }, [speakMessage, stopAudio]);
-
-  const toggleMute = () => {
-    const next = !muted;
-    setMuted(next);
-    mutedRef.current = next;
-    if (next) {
+  const _toggleSpeak = () => {
+    if (speaking) {
       stopAudio();
     } else {
       speakMessage();
@@ -468,42 +426,60 @@ export function WelcomeSplash({
               </motion.div>
             )}
 
-            <div className="flex gap-3">
-              <button
-                type="button"
-                data-ocid="splash.toggle"
-                onClick={toggleMute}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all"
-                style={{
-                  background: "oklch(0.18 0.05 250)",
-                  border: "1px solid oklch(0.72 0.14 78 / 0.3)",
-                  color: muted
-                    ? "rgba(255,255,255,0.4)"
-                    : "oklch(0.72 0.14 78)",
-                }}
-              >
-                {muted ? (
-                  <VolumeX className="w-4 h-4" />
-                ) : (
-                  <Volume2 className="w-4 h-4" />
-                )}
-                {muted ? t.splash_unmute : t.splash_mute}
-              </button>
+            {/* Tap-to-hear button - MUST be direct user click for browser audio policy */}
+            {!speaking && (
               <motion.button
                 type="button"
-                data-ocid="splash.primary_button"
-                onClick={handleDismiss}
-                className="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all"
+                data-ocid="splash.play_audio"
+                onClick={speakMessage}
+                className="w-full flex items-center justify-center gap-3 py-3 rounded-xl text-sm font-bold mb-3 transition-all"
                 style={{
-                  background: "oklch(0.72 0.14 78)",
-                  color: "oklch(0.13 0.04 250)",
+                  background: "oklch(0.72 0.14 78 / 0.15)",
+                  border: "2px solid oklch(0.72 0.14 78 / 0.7)",
+                  color: "oklch(0.72 0.14 78)",
+                }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+              >
+                <Volume2 className="w-5 h-5" />
+                {hasPlayed ? t.splash_unmute : `🔊 ${t.splash_mute}`}
+              </motion.button>
+            )}
+            {speaking && (
+              <motion.button
+                type="button"
+                data-ocid="splash.stop_audio"
+                onClick={stopAudio}
+                className="w-full flex items-center justify-center gap-3 py-3 rounded-xl text-sm font-bold mb-3 transition-all"
+                style={{
+                  background: "oklch(0.72 0.14 78 / 0.25)",
+                  border: "2px solid oklch(0.72 0.14 78)",
+                  color: "oklch(0.72 0.14 78)",
                 }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
               >
-                {t.splash_continue}
+                <VolumeX className="w-5 h-5" />
+                {t.splash_mute}
               </motion.button>
-            </div>
+            )}
+            <motion.button
+              type="button"
+              data-ocid="splash.primary_button"
+              onClick={handleDismiss}
+              className="w-full py-2.5 rounded-xl text-sm font-bold transition-all"
+              style={{
+                background: "oklch(0.72 0.14 78)",
+                color: "oklch(0.13 0.04 250)",
+              }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              {t.splash_continue}
+            </motion.button>
           </div>
 
           <div
