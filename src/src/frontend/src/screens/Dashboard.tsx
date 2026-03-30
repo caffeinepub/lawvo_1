@@ -172,7 +172,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
   ];
 
   const handleCardClick = (id: DashboardScreen) => {
-    if (id === "about" || id === "voice") {
+    if (id === "about") {
       onNavigate(id);
     } else {
       setSelectedCard(id);
