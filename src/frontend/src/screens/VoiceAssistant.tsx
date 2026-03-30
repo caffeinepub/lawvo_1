@@ -37,6 +37,511 @@ const DISCLAIMERS: Record<string, string> = {
     "এটি আইনি নির্দেশিকা, আইনি পরামর্শ নয়। আপনার নির্দিষ্ট পরিস্থিতির জন্য একজন যোগ্য আইনজীবীর সাথে পরামর্শ করুন।",
 };
 
+// ─── HINDI ENTRIES ───────────────────────────────────────────────────────────
+const HINDI_ENTRIES: ChatbotEntry[] = [
+  {
+    id: 1n,
+    topicKey: "land_dispute",
+    icon: "🏠",
+    title: "जमीन विवाद स्वामित्व",
+    keywords: [
+      "जमीन",
+      "विवाद",
+      "स्वामित्व",
+      "संपत्ति",
+      "land",
+      "property",
+      "ownership",
+      "dispute",
+      "plot",
+      "deed",
+    ],
+    intro:
+      "यह तब होता है जब दो या अधिक लोग एक ही संपत्ति पर दावा करते हैं। चिंता न करें — भारत में यह बहुत आम है।",
+    whatToDo:
+      "सबसे पहले, अपने सभी संपत्ति दस्तावेज इकट्ठा करें। फिर स्वामित्व को कानूनी रूप से साबित करने के लिए स्थानीय सिविल कोर्ट में घोषणा और निषेधाज्ञा के लिए सिविल मुकदमा दायर करें।",
+    documents: [
+      "सेल डीड / टाइटल डीड",
+      "एन्कम्ब्रेंस सर्टिफिकेट (EC)",
+      "प्रॉपर्टी टैक्स रसीदें",
+      "भूमि रिकॉर्ड (RTC/पट्टा)",
+      "कोई भी एग्रीमेंट पेपर्स",
+    ],
+    lawyerType: "प्रॉपर्टी / सिविल वकील",
+    cost: "₹20,000 – ₹2,00,000+",
+    timeRequired: "2–10 वर्ष",
+    successRate: "यदि दस्तावेज मजबूत हों तो अधिक",
+    tip: "कानूनी प्रक्रिया के बिना आपको आपकी संपत्ति से हटाया नहीं जा सकता।",
+  },
+  {
+    id: 2n,
+    topicKey: "encroachment",
+    icon: "🚧",
+    title: "अवैध कब्जा (एन्क्रोचमेंट)",
+    keywords: [
+      "अवैध",
+      "कब्जा",
+      "एन्क्रोचमेंट",
+      "encroachment",
+      "trespass",
+      "illegal occupation",
+    ],
+    intro: "यदि किसी ने आपकी जमीन बिना अनुमति के ले ली है, तो यह गैरकानूनी है।",
+    whatToDo:
+      "अतिक्रमण (ट्रेसपास) के लिए पुलिस में शिकायत दर्ज करें और बेदखली के लिए सिविल केस भी दायर करें।",
+    documents: ["स्वामित्व प्रमाण", "भूमि रिकॉर्ड", "अतिक्रमण की फोटो/वीडियो"],
+    lawyerType: "सिविल + आपराधिक वकील",
+    cost: "₹20,000 – ₹1,50,000",
+    timeRequired: "1–5 वर्ष",
+    successRate: "मध्यम–उच्च",
+    tip: "आपको अपनी संपत्ति को कानूनी रूप से वापस पाने का पूरा अधिकार है।",
+  },
+  {
+    id: 3n,
+    topicKey: "fir_police",
+    icon: "👮",
+    title: "पुलिस FIR दर्ज नहीं कर रही",
+    keywords: [
+      "fir",
+      "पुलिस",
+      "शिकायत",
+      "police",
+      "complaint",
+      "report",
+      "refuse",
+    ],
+    intro:
+      "यदि पुलिस आपकी FIR दर्ज करने से मना करती है, तो चिंता न करें — कानून पूरी तरह आपका समर्थन करता है।",
+    whatToDo: "सुपरिंटेंडेंट ऑफ पुलिस (SP) के पास जाएं या मजिस्ट्रेट के सामने शिकायत दर्ज करें।",
+    documents: ["लिखित शिकायत", "सबूत (फोटो, चैट)", "पहचान पत्र"],
+    lawyerType: "आपराधिक वकील",
+    cost: "₹5,000 – ₹50,000",
+    timeRequired: "कुछ दिन",
+    successRate: "बहुत अधिक",
+    tip: "संज्ञेय अपराधों के लिए पुलिस को FIR दर्ज करना अनिवार्य है।",
+  },
+  {
+    id: 4n,
+    topicKey: "bail",
+    icon: "⚖️",
+    title: "जमानत प्रक्रिया",
+    keywords: [
+      "जमानत",
+      "bail",
+      "custody",
+      "arrest",
+      "गिरफ्तारी",
+      "जेल",
+      "jail",
+      "release",
+    ],
+    intro: "जमानत का मतलब है कि केस चलते समय अस्थायी रूप से हिरासत से रिहाई।",
+    whatToDo: "एक वकील रखें और तुरंत कोर्ट में जमानत के लिए आवेदन करें।",
+    documents: ["FIR की कॉपी", "पहचान पत्र", "जमानतदार के दस्तावेज"],
+    lawyerType: "आपराधिक वकील",
+    cost: "₹10,000 – ₹1,00,000",
+    timeRequired: "1 दिन–कुछ सप्ताह",
+    successRate: "उच्च",
+    tip: "'जमानत नियम है, जेल अपवाद है' — सहयोग करने से जमानत मिलने की संभावना बढ़ती है।",
+  },
+  {
+    id: 5n,
+    topicKey: "divorce",
+    icon: "👩‍⚖️",
+    title: "तलाक प्रक्रिया",
+    keywords: [
+      "तलाक",
+      "divorce",
+      "separation",
+      "विवाह",
+      "marriage",
+      "wife",
+      "husband",
+      "पत्नी",
+      "पति",
+      "alimony",
+    ],
+    intro:
+      "तलाक आपसी सहमति से (आसान) या विवादित (लंबा) हो सकता है। आपसी तलाक हमेशा सरल और सस्ता होता है।",
+    whatToDo: "फैमिली कोर्ट में याचिका दायर करें।",
+    documents: [
+      "विवाह प्रमाण पत्र",
+      "पहचान/पता प्रमाण",
+      "सबूत (यदि विवादित)",
+      "आय का प्रमाण",
+    ],
+    lawyerType: "फैमिली वकील",
+    cost: "₹20,000 – ₹2,00,000",
+    timeRequired: "आपसी: 6 महीने–1 वर्ष | विवादित: 2–5 वर्ष",
+    successRate: "उच्च",
+    tip: "आपसी तलाक हमेशा आसान, सस्ता और कम तनावपूर्ण होता है।",
+  },
+  {
+    id: 6n,
+    topicKey: "domestic_violence",
+    icon: "🛡️",
+    title: "घरेलू हिंसा",
+    keywords: [
+      "घरेलू हिंसा",
+      "domestic violence",
+      "abuse",
+      "harassment",
+      "मारपीट",
+      "दहेज",
+      "dowry",
+      "beating",
+    ],
+    intro: "शारीरिक, मानसिक या आर्थिक किसी भी प्रकार का उत्पीड़न गैरकानूनी है।",
+    whatToDo: "घरेलू हिंसा अधिनियम के तहत शिकायत दर्ज करें या पुलिस से संपर्क करें।",
+    documents: ["मेडिकल रिपोर्ट", "संदेश/सबूत", "गवाह"],
+    lawyerType: "फैमिली / आपराधिक वकील",
+    cost: "₹10,000 – ₹1,00,000",
+    timeRequired: "त्वरित राहत संभव",
+    successRate: "उच्च यदि सबूत हों",
+    tip: "आप सुरक्षा आदेश, रहने का अधिकार और भरण-पोषण पा सकते हैं।",
+  },
+  {
+    id: 7n,
+    topicKey: "salary",
+    icon: "💼",
+    title: "वेतन नहीं मिला",
+    keywords: [
+      "वेतन",
+      "salary",
+      "wages",
+      "employer",
+      "नौकरी",
+      "job",
+      "labour",
+      "तनख्वाह",
+      "payment",
+    ],
+    intro: "नियोक्ता आपके वेतन को रोक नहीं सकता।",
+    whatToDo: "लेबर कमिश्नर के पास शिकायत करें।",
+    documents: ["ऑफर लेटर", "सैलरी स्लिप", "बैंक स्टेटमेंट"],
+    lawyerType: "लेबर वकील",
+    cost: "₹5,000 – ₹50,000",
+    timeRequired: "2–6 महीने",
+    successRate: "बहुत अधिक",
+    tip: "अपने सभी रोजगार दस्तावेज हमेशा सुरक्षित रखें।",
+  },
+  {
+    id: 8n,
+    topicKey: "cheque_bounce",
+    icon: "🏦",
+    title: "चेक बाउंस",
+    keywords: ["चेक", "cheque", "check", "बाउंस", "bounce", "dishonour", "loan"],
+    intro: "चेक बाउंस एक आपराधिक अपराध है।",
+    whatToDo: "30 दिन में नोटिस भेजें, फिर केस फाइल करें।",
+    documents: ["चेक", "बैंक मेमो", "नोटिस कॉपी"],
+    lawyerType: "आपराधिक / सिविल वकील",
+    cost: "₹10,000 – ₹1,00,000",
+    timeRequired: "6 महीने–2 वर्ष",
+    successRate: "उच्च",
+    tip: "हर वित्तीय लेनदेन का प्रमाण हमेशा रखें।",
+  },
+  {
+    id: 9n,
+    topicKey: "cyber_fraud",
+    icon: "🌐",
+    title: "ऑनलाइन धोखाधड़ी",
+    keywords: [
+      "ऑनलाइन",
+      "धोखाधड़ी",
+      "cyber",
+      "online",
+      "fraud",
+      "scam",
+      "upi",
+      "hack",
+      "पैसा",
+      "money stolen",
+    ],
+    intro: "अगर पैसा ऑनलाइन चोरी हो गया है, तुरंत कार्रवाई करें।",
+    whatToDo: "1930 पर कॉल करें + cybercrime.gov.in पर रिपोर्ट करें।",
+    documents: ["ट्रांजेक्शन प्रूफ", "स्क्रीनशॉट"],
+    lawyerType: "साइबर वकील (वैकल्पिक)",
+    cost: "अधिकतर मुफ्त",
+    timeRequired: "तुरंत",
+    successRate: "मध्यम (रिपोर्ट की गति पर निर्भर)",
+    tip: "धोखाधड़ी के कुछ घंटों के भीतर रिपोर्ट करें — पैसा वापस मिलने की संभावना बढ़ती है।",
+  },
+  {
+    id: 10n,
+    topicKey: "consumer",
+    icon: "🛍️",
+    title: "उपभोक्ता शिकायत",
+    keywords: [
+      "उपभोक्ता",
+      "consumer",
+      "product",
+      "खराब",
+      "defective",
+      "refund",
+      "service",
+      "cheated",
+    ],
+    intro: "आपको रिफंड या रिप्लेसमेंट का अधिकार है।",
+    whatToDo:
+      "कंज्यूमर कोर्ट में शिकायत करें। आप edaakhil.nic.in पर ऑनलाइन भी कर सकते हैं।",
+    documents: ["बिल/इनवॉइस", "वारंटी", "शिकायत प्रूफ"],
+    lawyerType: "उपभोक्ता वकील (वैकल्पिक)",
+    cost: "₹1,000 – ₹20,000",
+    timeRequired: "3–12 महीने",
+    successRate: "उच्च",
+    tip: "₹50 लाख से कम के छोटे मामलों में कंज्यूमर कोर्ट में वकील की जरूरत नहीं।",
+  },
+  {
+    id: 11n,
+    topicKey: "builder_rera",
+    icon: "🏗️",
+    title: "बिल्डर धोखाधड़ी / RERA",
+    keywords: [
+      "बिल्डर",
+      "builder",
+      "possession",
+      "rera",
+      "फ्लैट",
+      "flat",
+      "apartment",
+      "delay",
+      "project",
+    ],
+    intro: "बिल्डर की देरी गैरकानूनी है।",
+    whatToDo: "RERA में शिकायत करें।",
+    documents: ["एग्रीमेंट", "पेमेंट प्रूफ", "बिल्डर से संवाद"],
+    lawyerType: "प्रॉपर्टी वकील",
+    cost: "₹10,000 – ₹1,00,000",
+    timeRequired: "6 महीने–3 वर्ष",
+    successRate: "उच्च RERA में",
+    tip: "RERA सिविल कोर्ट से बहुत तेज है — इसका उपयोग करें।",
+  },
+  {
+    id: 12n,
+    topicKey: "fundamental_rights",
+    icon: "⚖️",
+    title: "मौलिक अधिकार उल्लंघन",
+    keywords: [
+      "अधिकार",
+      "rights",
+      "fundamental",
+      "मौलिक",
+      "government",
+      "सरकार",
+      "violation",
+      "writ",
+      "constitutional",
+    ],
+    intro: "सरकार आपके अधिकार तोड़े तो आप सीधे कोर्ट जा सकते हैं।",
+    whatToDo:
+      "हाई कोर्ट (अनुच्छेद 226) या सुप्रीम कोर्ट (अनुच्छेद 32) में रिट याचिका दायर करें।",
+    documents: ["उल्लंघन का प्रमाण", "पहचान पत्र", "सहायक सबूत"],
+    lawyerType: "संवैधानिक वकील",
+    cost: "₹20,000 – ₹2,00,000+",
+    timeRequired: "कुछ सप्ताह–महीने",
+    successRate: "केस पर निर्भर",
+    tip: "कोर्ट अधिकार उल्लंघन को गंभीरता से लेती है — सब कुछ दस्तावेज करें।",
+  },
+];
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ─── KANNADA ENTRIES ─────────────────────────────────────────────────────────
+const KANNADA_ENTRIES: ChatbotEntry[] = [
+  {
+    id: 1n,
+    topicKey: "land_dispute",
+    icon: "🏠",
+    title: "ಭೂಮಿ ಹಕ್ಕು ವಿವಾದ",
+    keywords: [
+      "ಭೂಮಿ",
+      "ಜಮೀನು",
+      "ಆಸ್ತಿ",
+      "land",
+      "property",
+      "ownership",
+      "dispute",
+      "encroachment",
+      "ಕಬಳಿಕೆ",
+      "ಅಕ್ರಮ",
+    ],
+    intro:
+      "ಒಂದೇ ಆಸ್ತಿಗೆ ಎರಡು ಅಥವಾ ಹೆಚ್ಚು ಜನರು ಹಕ್ಕು ಕೇಳಿದಾಗ ಇದು ಸಂಭವಿಸುತ್ತದೆ. ಚಿಂತಿಸಬೇಡಿ — ಇದು ಭಾರತದಲ್ಲಿ ತುಂಬಾ ಸಾಮಾನ್ಯವಾಗಿದೆ.",
+    whatToDo:
+      "ಮೊದಲು, ನಿಮ್ಮ ಎಲ್ಲಾ ಆಸ್ತಿ ದಾಖಲೆಗಳನ್ನು ಸಂಗ್ರಹಿಸಿ. ನಂತರ ಸ್ಥಳೀಯ ಸಿವಿಲ್ ನ್ಯಾಯಾಲಯದಲ್ಲಿ ಘೋಷಣೆ ಮತ್ತು ನಿರ್ಬಂಧಾಜ್ಞೆಗಾಗಿ ಸಿವಿಲ್ ಮೊಕದ್ದಮೆ ಹೂಡಿ.",
+    documents: [
+      "ಸೆಲ್ ಡೀಡ್ / ಟೈಟಲ್ ಡೀಡ್",
+      "ಎಂಕಂಬ್ರನ್ಸ್ ಸರ್ಟಿಫಿಕೆಟ್ (EC)",
+      "ಪ್ರಾಪರ್ಟಿ ತೆರಿಗೆ ರಸೀದಿ",
+      "ಭೂಮಿ ದಾಖಲೆ (RTC/ಪಟ್ಟಾ)",
+    ],
+    lawyerType: "ಪ್ರಾಪರ್ಟಿ / ಸಿವಿಲ್ ವಕೀಲ",
+    cost: "₹20,000 – ₹2,00,000+",
+    timeRequired: "2–10 ವರ್ಷಗಳು",
+    successRate: "ದಾಖಲೆ ಬಲವಾಗಿದ್ದರೆ ಹೆಚ್ಚು",
+    tip: "ಖರೀದಿ ಮಾಡುವ ಮೊದಲು ಭೂಮಿ ದಾಖಲೆ ಪರಿಶೀಲಿಸಿ.",
+  },
+  {
+    id: 2n,
+    topicKey: "police_fir",
+    icon: "👮",
+    title: "ಪೊಲೀಸ್ FIR ದಾಖಲಿಸುತ್ತಿಲ್ಲ",
+    keywords: ["FIR", "ಪೊಲೀಸ್", "police", "fir", "complaint", "ದೂರು"],
+    intro:
+      "ಪೊಲೀಸರು ನಿಮ್ಮ FIR ದಾಖಲಿಸಲು ನಿರಾಕರಿಸಿದರೆ, ಚಿಂತಿಸಬೇಡಿ — ಕಾನೂನು ಸಂಪೂರ್ಣವಾಗಿ ನಿಮ್ಮ ಬೆಂಬಲದಲ್ಲಿದೆ.",
+    whatToDo:
+      "SP ಬಳಿ ಹೋಗಿ ಅಥವಾ ಮ್ಯಾಜಿಸ್ಟ್ರೇಟ್ ಮುಂದೆ ದೂರು ಸಲ್ಲಿಸಿ. ಅನೇಕ ರಾಜ್ಯಗಳಲ್ಲಿ ಆನ್‌ಲೈನ್ FIR ಕೂಡ ಸಾಧ್ಯ.",
+    documents: ["ಲಿಖಿತ ದೂರು", "ಸಾಕ್ಷ್ಯ (ಫೋಟೋ, ಚಾಟ್)", "ಗುರುತಿನ ಚೀಟಿ"],
+    lawyerType: "ಕ್ರಿಮಿನಲ್ ವಕೀಲ",
+    cost: "₹5,000 – ₹50,000",
+    timeRequired: "ಕೆಲವು ದಿನಗಳು",
+    successRate: "ಬಹಳ ಹೆಚ್ಚು",
+    tip: "ಗಂಭೀರ ಅಪರಾಧಗಳಿಗೆ FIR ದಾಖಲಿಸುವುದು ಪೊಲೀಸರ ಕರ್ತವ್ಯ.",
+  },
+  {
+    id: 3n,
+    topicKey: "bail",
+    icon: "⚖️",
+    title: "ಜಾಮೀನು ಪ್ರಕ್ರಿಯೆ",
+    keywords: ["ಜಾಮೀನು", "bail", "custody", "arrest", "ಬಂಧನ"],
+    intro: "ಜಾಮೀನು ಎಂದರೆ ಪ್ರಕರಣ ಮುಂದುವರಿಯುವ ವೇಳೆ ತಾತ್ಕಾಲಿಕ ಬಿಡುಗಡೆ.",
+    whatToDo: "ವಕೀಲರನ್ನು ನೇಮಿಸಿ ತಕ್ಷಣ ನ್ಯಾಯಾಲಯದಲ್ಲಿ ಜಾಮೀನು ಅರ್ಜಿ ಹಾಕಿ.",
+    documents: ["FIR ಪ್ರತಿ", "ಗುರುತಿನ ಚೀಟಿ", "ಜಾಮೀನುದಾರರ ದಾಖಲೆ"],
+    lawyerType: "ಕ್ರಿಮಿನಲ್ ವಕೀಲ",
+    cost: "₹10,000 – ₹1,00,000",
+    timeRequired: "1 ದಿನ – ಕೆಲವು ವಾರಗಳು",
+    successRate: "ಸಣ್ಣ ಅಪರಾಧಗಳಿಗೆ ಹೆಚ್ಚು",
+    tip: "ತನಿಖೆಯಲ್ಲಿ ಸಹಕರಿಸಿ — ಜಾಮೀನು ಸಿಗುವ ಸಾಧ್ಯತೆ ಹೆಚ್ಚಾಗುತ್ತದೆ.",
+  },
+  {
+    id: 4n,
+    topicKey: "divorce",
+    icon: "👩‍⚖️",
+    title: "ವಿಚ್ಛೇದನ ಪ್ರಕ್ರಿಯೆ",
+    keywords: ["ವಿಚ್ಛೇದನ", "divorce", "separation", "ತಲಾಕ್", "marriage"],
+    intro: "ವಿಚ್ಛೇದನ ಪರಸ್ಪರ ಒಪ್ಪಿಗೆಯಿಂದ (ಸುಲಭ) ಅಥವಾ ವಿವಾದಾತ್ಮಕ (ದೀರ್ಘ) ಆಗಿರಬಹುದು.",
+    whatToDo: "ಫ್ಯಾಮಿಲಿ ಕೋರ್ಟ್‌ನಲ್ಲಿ ಅರ್ಜಿ ಸಲ್ಲಿಸಿ.",
+    documents: ["ವಿವಾಹ ಪ್ರಮಾಣಪತ್ರ", "ಗುರುತಿನ ಚೀಟಿ", "ಆದಾಯ ದಾಖಲೆ", "ಸಾಕ್ಷ್ಯ (ವಿವಾದ ಇದ್ದರೆ)"],
+    lawyerType: "ಫ್ಯಾಮಿಲಿ ವಕೀಲ",
+    cost: "₹20,000 – ₹2,00,000",
+    timeRequired: "6 ತಿಂಗಳು – 5 ವರ್ಷಗಳು",
+    successRate: "ಕಾನೂನು ಆಧಾರ ಇದ್ದರೆ ಹೆಚ್ಚು",
+    tip: "ಪರಸ್ಪರ ಒಪ್ಪಿಗೆ ವಿಚ್ಛೇದನ ಯಾವಾಗಲೂ ಸುಲಭ ಮತ್ತು ಕಡಿಮೆ ವೆಚ್ಚದಾಯಕ.",
+  },
+  {
+    id: 5n,
+    topicKey: "domestic_violence",
+    icon: "👩",
+    title: "ಗೃಹ ಹಿಂಸೆ",
+    keywords: ["ಗೃಹ ಹಿಂಸೆ", "domestic violence", "abuse", "ಹಿಂಸೆ", "violence"],
+    intro: "ದೇಹಾತ್ಮಕ, ಮಾನಸಿಕ ಅಥವಾ ಆರ್ಥಿಕ ಹಿಂಸೆ ಕಾನೂನುಬಾಹಿರ.",
+    whatToDo: "ಗೃಹ ಹಿಂಸೆ ಕಾಯ್ದೆಯಡಿ ದೂರು ನೀಡಿ ಅಥವಾ ಪೊಲೀಸರನ್ನು ಸಂಪರ್ಕಿಸಿ.",
+    documents: ["ವೈದ್ಯಕೀಯ ವರದಿ", "ಸಾಕ್ಷ್ಯ (ಸಂದೇಶಗಳು, ಫೋಟೋ)", "ಸಾಕ್ಷಿದಾರರ ವಿವರ"],
+    lawyerType: "ಫ್ಯಾಮಿಲಿ / ಕ್ರಿಮಿನಲ್ ವಕೀಲ",
+    cost: "₹10,000 – ₹1,00,000",
+    timeRequired: "ತ್ವರಿತ ರಕ್ಷಣೆ ಸಾಧ್ಯ",
+    successRate: "ಸಾಕ್ಷ್ಯ ಇದ್ದರೆ ಹೆಚ್ಚು",
+    tip: "ರಕ್ಷಣೆ, ವಾಸ ಮತ್ತು ಭರಣೆ ಎಲ್ಲ ಪಡೆಯಬಹುದು.",
+  },
+  {
+    id: 6n,
+    topicKey: "salary",
+    icon: "💼",
+    title: "ಸಂಬಳ ಸಿಗದಿರುವುದು",
+    keywords: ["ಸಂಬಳ", "salary", "wages", "payment", "employer", "ನಿಯೋಜಕ"],
+    intro: "ನಿಯೋಜಕರು ನಿಮ್ಮ ಸಂಬಳವನ್ನು ನಿರಾಕರಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ.",
+    whatToDo: "ಲೇಬರ್ ಕಮಿಷನರ್ ಬಳಿ ದೂರು ನೀಡಿ.",
+    documents: ["ಆಫರ್ ಲೆಟರ್", "ಸಂಬಳ ಸ್ಲಿಪ್", "ಬ್ಯಾಂಕ್ ಸ್ಟೇಟ್ಮೆಂಟ್"],
+    lawyerType: "ಲೇಬರ್ ವಕೀಲ",
+    cost: "₹5,000 – ₹50,000",
+    timeRequired: "2–6 ತಿಂಗಳುಗಳು",
+    successRate: "ಬಹಳ ಹೆಚ್ಚು",
+    tip: "ಎಲ್ಲ ಉದ್ಯೋಗ ದಾಖಲೆಗಳನ್ನು ಸುರಕ್ಷಿತವಾಗಿ ಇಡಿ.",
+  },
+  {
+    id: 7n,
+    topicKey: "cheque_bounce",
+    icon: "🏦",
+    title: "ಚೆಕ್ ಬೌನ್ಸ್",
+    keywords: ["ಚೆಕ್", "cheque", "bounce", "ಬ್ಯಾಂಕ್"],
+    intro: "ಚೆಕ್ ಬೌನ್ಸ್ ಒಂದು ಅಪರಾಧ.",
+    whatToDo: "30 ದಿನಗಳಲ್ಲಿ ನೋಟಿಸ್ ನೀಡಿ, ನಂತರ ಪ್ರಕರಣ ಹೂಡಿ.",
+    documents: ["ಚೆಕ್", "ಬ್ಯಾಂಕ್ ಮೆಮೊ", "ನೋಟಿಸ್ ಪ್ರತಿ"],
+    lawyerType: "ಕ್ರಿಮಿನಲ್ / ಸಿವಿಲ್ ವಕೀಲ",
+    cost: "₹10,000 – ₹1,00,000",
+    timeRequired: "6 ತಿಂಗಳು – 2 ವರ್ಷಗಳು",
+    successRate: "ದಾಖಲೆ ಸರಿಯಾಗಿದ್ದರೆ ಹೆಚ್ಚು",
+    tip: "ಯಾವಾಗಲೂ ವಹಿವಾಟಿನ ಸಾಕ್ಷ್ಯ ಇಡಿ.",
+  },
+  {
+    id: 8n,
+    topicKey: "online_fraud",
+    icon: "🌐",
+    title: "ಆನ್‌ಲೈನ್ ಮೋಸ",
+    keywords: ["ಮೋಸ", "fraud", "online", "cyber", "scam", "ಸೈಬರ್"],
+    intro: "ಹಣ ಆನ್‌ಲೈನ್‌ನಲ್ಲಿ ಕಳವಾಗಿದ್ದರೆ ತಕ್ಷಣ ಕ್ರಮ ಕೈಗೊಳ್ಳಿ.",
+    whatToDo: "1930 ಗೆ ಕರೆ ಮಾಡಿ + ಆನ್‌ಲೈನ್‌ನಲ್ಲಿ ವರದಿ ಮಾಡಿ.",
+    documents: ["ಟ್ರಾನ್ಸಾಕ್ಷನ್ ಪ್ರೂಫ್", "ಸ್ಕ್ರೀನ್‌ಶಾಟ್", "ಬ್ಯಾಂಕ್ ವಿವರ"],
+    lawyerType: "ಸೈಬರ್ ವಕೀಲ (ಐಚ್ಛಿಕ)",
+    cost: "ಉಚಿತ ದೂರು",
+    timeRequired: "ತಕ್ಷಣ ಕ್ರಮ ಅಗತ್ಯ",
+    successRate: "ವೇಗ ಅನುಸರಿಸಿ ಮಧ್ಯಮ",
+    tip: "ಕೆಲವು ಗಂಟೆಗಳಲ್ಲಿ ವರದಿ ಮಾಡಿದರೆ ಚೇತರಿಕೆ ಸಾಧ್ಯ.",
+  },
+  {
+    id: 9n,
+    topicKey: "consumer",
+    icon: "🛍️",
+    title: "ಗ್ರಾಹಕ ದೂರು",
+    keywords: ["ಗ್ರಾಹಕ", "consumer", "product", "refund", "ರಿಫಂಡ್", "complaint"],
+    intro: "ನಿಮಗೆ ರಿಫಂಡ್ ಅಥವಾ ಬದಲಾವಣೆ ಪಡೆಯುವ ಹಕ್ಕು ಇದೆ.",
+    whatToDo: "ಕನ್ಸ್ಯೂಮರ್ ಕೋರ್ಟ್‌ನಲ್ಲಿ ದೂರು ನೀಡಿ.",
+    documents: ["ಬಿಲ್/ಇನ್‌ವಾಯ್ಸ್", "ವಾರಂಟಿ", "ದೂರು ಸಾಕ್ಷ್ಯ"],
+    lawyerType: "ಕನ್ಸ್ಯೂಮರ್ ವಕೀಲ (ಐಚ್ಛಿಕ)",
+    cost: "₹1,000 – ₹20,000",
+    timeRequired: "3–12 ತಿಂಗಳುಗಳು",
+    successRate: "ಹೆಚ್ಚು",
+    tip: "ಸಣ್ಣ ಪ್ರಕರಣಗಳಿಗೆ ವಕೀಲ ಬೇಕಿಲ್ಲ.",
+  },
+  {
+    id: 10n,
+    topicKey: "builder",
+    icon: "🏠",
+    title: "ಬಿಲ್ಡರ್ ಮೋಸ",
+    keywords: ["ಬಿಲ್ಡರ್", "builder", "RERA", "possession", "ಮನೆ", "flat"],
+    intro: "ಬಿಲ್ಡರ್ ವಿಳಂಬ ಕಾನೂನುಬಾಹಿರ.",
+    whatToDo: "RERA ನಲ್ಲಿ ದೂರು ನೀಡಿ.",
+    documents: ["ಒಪ್ಪಂದ", "ಪಾವತಿ ಸಾಕ್ಷ್ಯ", "ಬಿಲ್ಡರ್ ಪತ್ರ ವ್ಯವಹಾರ"],
+    lawyerType: "ಪ್ರಾಪರ್ಟಿ ವಕೀಲ",
+    cost: "₹10,000 – ₹1,00,000",
+    timeRequired: "6 ತಿಂಗಳು – 3 ವರ್ಷಗಳು",
+    successRate: "RERA ನಲ್ಲಿ ಹೆಚ್ಚು",
+    tip: "RERA ಸಿವಿಲ್ ಕೋರ್ಟ್‌ಗಿಂತ ವೇಗವಾಗಿದೆ.",
+  },
+  {
+    id: 11n,
+    topicKey: "fundamental_rights",
+    icon: "⚖️",
+    title: "ಮೂಲಭೂತ ಹಕ್ಕು ಉಲ್ಲಂಘನೆ",
+    keywords: [
+      "ಹಕ್ಕು",
+      "rights",
+      "fundamental",
+      "violation",
+      "ಉಲ್ಲಂಘನೆ",
+      "constitution",
+    ],
+    intro: "ಸರ್ಕಾರ ನಿಮ್ಮ ಹಕ್ಕುಗಳನ್ನು ಉಲ್ಲಂಘಿಸಿದರೆ, ನೀವು ನೇರವಾಗಿ ನ್ಯಾಯಾಲಯಕ್ಕೆ ಹೋಗಬಹುದು.",
+    whatToDo: "ರಿಟ್ ಅರ್ಜಿ ಹಾಕಿ.",
+    documents: ["ಉಲ್ಲಂಘನೆ ಸಾಕ್ಷ್ಯ", "ಗುರುತಿನ ಚೀಟಿ", "ಪೋಷಕ ಸಾಕ್ಷ್ಯ"],
+    lawyerType: "ಸಾಂವಿಧಾನಿಕ ವಕೀಲ",
+    cost: "₹20,000 – ₹2,00,000+",
+    timeRequired: "ಕೆಲವು ವಾರಗಳು – ತಿಂಗಳುಗಳು",
+    successRate: "ಪ್ರಕರಣದ ಬಲ ಅನುಸರಿಸಿ",
+    tip: "ಕೋರ್ಟ್ ಹಕ್ಕು ಉಲ್ಲಂಘನೆಯನ್ನು ಗಂಭೀರವಾಗಿ ತೆಗೆದುಕೊಳ್ಳುತ್ತದೆ — ಎಲ್ಲ ದಾಖಲಿಸಿ.",
+  },
+];
+// ─────────────────────────────────────────────────────────────────────────────
+
 const FALLBACK_ENTRIES: ChatbotEntry[] = [
   {
     id: 1n,
@@ -399,6 +904,110 @@ function matchEntry(
   return null;
 }
 
+// For Kannada users typing in English, cross-match English keywords to Kannada entries
+const KANNADA_ENGLISH_KEYWORD_MAP: Record<string, string> = {
+  land: "ಭೂಮಿ",
+  property: "ಆಸ್ತಿ",
+  ownership: "ಹಕ್ಕು",
+  dispute: "ವಿವಾದ",
+  encroachment: "ಕಬಳಿಕೆ",
+  trespass: "ಅಕ್ರಮ",
+  fir: "FIR",
+  police: "ಪೊಲೀಸ್",
+  bail: "ಜಾಮೀನು",
+  arrest: "ಬಂಧನ",
+  divorce: "ವಿಚ್ಛೇದನ",
+  separation: "ವಿಚ್ಛೇದನ",
+  "domestic violence": "ಗೃಹ ಹಿಂಸೆ",
+  abuse: "ಹಿಂಸೆ",
+  salary: "ಸಂಬಳ",
+  wages: "ಸಂಬಳ",
+  payment: "ಸಂಬಳ",
+  cheque: "ಚೆಕ್",
+  check: "ಚೆಕ್",
+  bounce: "ಬೌನ್ಸ್",
+  fraud: "ಮೋಸ",
+  "online fraud": "ಮೋಸ",
+  cyber: "ಸೈಬರ್",
+  scam: "ಮೋಸ",
+  consumer: "ಗ್ರಾಹಕ",
+  refund: "ರಿಫಂಡ್",
+  builder: "ಬಿಲ್ಡರ್",
+  rera: "ಬಿಲ್ಡರ್",
+  possession: "ಮನೆ",
+  rights: "ಹಕ್ಕು",
+  fundamental: "ಮೂಲಭೂತ",
+  violation: "ಉಲ್ಲಂಘನೆ",
+};
+
+function matchEntryKannada(
+  query: string,
+  entries: ChatbotEntry[],
+): ChatbotEntry | null {
+  const direct = matchEntry(query, entries);
+  if (direct) return direct;
+  const lower = query.toLowerCase();
+  for (const [engKw, knKw] of Object.entries(KANNADA_ENGLISH_KEYWORD_MAP)) {
+    if (lower.includes(engKw)) {
+      return matchEntry(knKw, entries) ?? null;
+    }
+  }
+  return null;
+}
+
+// For Hindi users typing in English, cross-match English keywords to Hindi entries
+const HINDI_ENGLISH_KEYWORD_MAP: Record<string, string> = {
+  land: "जमीन",
+  property: "जमीन",
+  ownership: "स्वामित्व",
+  dispute: "विवाद",
+  encroachment: "अवैध कब्जा",
+  trespass: "अवैध कब्जा",
+  fir: "FIR",
+  police: "पुलिस",
+  bail: "जमानत",
+  arrest: "गिरफ्तारी",
+  jail: "जेल",
+  divorce: "तलाक",
+  separation: "तलाक",
+  "domestic violence": "घरेलू हिंसा",
+  abuse: "घरेलू हिंसा",
+  salary: "वेतन",
+  wages: "वेतन",
+  payment: "वेतन",
+  cheque: "चेक",
+  check: "चेक",
+  bounce: "बाउंस",
+  "online fraud": "ऑनलाइन धोखाधड़ी",
+  cyber: "ऑनलाइन",
+  scam: "धोखाधड़ी",
+  consumer: "उपभोक्ता",
+  refund: "उपभोक्ता",
+  builder: "बिल्डर",
+  rera: "बिल्डर",
+  possession: "बिल्डर",
+  rights: "अधिकार",
+  fundamental: "मौलिक",
+  writ: "अधिकार",
+};
+
+function matchEntryHindi(
+  query: string,
+  entries: ChatbotEntry[],
+): ChatbotEntry | null {
+  // First try direct match (works for Hindi and English keywords in HINDI_ENTRIES)
+  const direct = matchEntry(query, entries);
+  if (direct) return direct;
+  // Fallback: try cross-language keyword translation
+  const lower = query.toLowerCase();
+  for (const [engKw, hindiKw] of Object.entries(HINDI_ENGLISH_KEYWORD_MAP)) {
+    if (lower.includes(engKw)) {
+      return matchEntry(hindiKw, entries) ?? null;
+    }
+  }
+  return null;
+}
+
 interface VoiceAssistantProps {
   onBack: () => void;
 }
@@ -408,6 +1017,8 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
   const { actor, isFetching } = useActor();
   const langCode = t.welcome_speech_lang;
   const disclaimer = DISCLAIMERS[langCode] ?? DISCLAIMERS["en-IN"];
+  const isHindi = langCode === "hi-IN";
+  const isKannada = langCode === "kn-IN";
 
   const [textInput, setTextInput] = useState("");
   const [transcript, setTranscript] = useState("");
@@ -427,7 +1038,15 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
     enabled: !!actor && !isFetching,
   });
 
-  const activeEntries = entries.length > 0 ? entries : FALLBACK_ENTRIES;
+  // Choose the right entries based on language
+  const baseEntries = isHindi
+    ? HINDI_ENTRIES
+    : isKannada
+      ? KANNADA_ENTRIES
+      : entries.length > 0
+        ? entries
+        : FALLBACK_ENTRIES;
+  const activeEntries = baseEntries;
 
   const stopCurrentSpeech = () => {
     window.speechSynthesis.cancel();
@@ -456,7 +1075,11 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
 
   const processQuery = (query: string) => {
     stopCurrentSpeech();
-    const found = matchEntry(query, activeEntries);
+    const found = isHindi
+      ? matchEntryHindi(query, HINDI_ENTRIES)
+      : isKannada
+        ? matchEntryKannada(query, KANNADA_ENTRIES)
+        : matchEntry(query, activeEntries);
     if (found) {
       setMatchedEntry(found);
       setNoMatch(false);
@@ -522,6 +1145,63 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
     setIsListening(false);
   };
 
+  const searchPlaceholder = isHindi
+    ? "अपनी कानूनी समस्या यहाँ लिखें (हिंदी या English में)..."
+    : isKannada
+      ? "ನಿಮ್ಮ ಕಾನೂನು ಸಮಸ್ಯೆ ಇಲ್ಲಿ ಬರೆಯಿರಿ (ಕನ್ನಡ ಅಥವಾ English ನಲ್ಲಿ)..."
+      : "Describe your legal problem...";
+
+  const browseTopicsLabel = isHindi
+    ? "विषय चुनें"
+    : isKannada
+      ? "ವಿಷಯ ಆರಿಸಿ"
+      : "Browse Topics";
+  const otherTopicsLabel = isHindi
+    ? "अन्य विषय"
+    : isKannada
+      ? "ಇತರ ವಿಷಯಗಳು"
+      : "Other Topics";
+  const whatToDoLabel = isHindi
+    ? "👉 क्या करें"
+    : isKannada
+      ? "👉 ಏನು ಮಾಡಬೇಕು"
+      : "👉 What to do";
+  const docsLabel = isHindi
+    ? "📄 आवश्यक दस्तावेज"
+    : isKannada
+      ? "📄 ಅಗತ್ಯ ದಾಖಲೆಗಳು"
+      : "📄 Documents needed";
+  const lawyerLabel = isHindi
+    ? "👨‍⚖️ वकील"
+    : isKannada
+      ? "👨‍⚖️ ವಕೀಲ"
+      : "👨‍⚖️ Lawyer type";
+  const costLabel = isHindi ? "💰 लागत" : isKannada ? "💰 ವೆಚ್ಚ" : "💰 Cost";
+  const timeLabel = isHindi ? "⏳ समय" : isKannada ? "⏳ ಸಮಯ" : "⏳ Time";
+  const successLabel = isHindi
+    ? "📊 सफलता दर"
+    : isKannada
+      ? "📊 ಯಶಸ್ಸಿನ ಪ್ರಮಾಣ"
+      : "📊 Success rate";
+  const tipLabel = isHindi ? "💡 सुझाव" : isKannada ? "💡 ಸಲಹೆ" : "💡 Tip";
+  const hearLabel = isHindi ? "🔊 सुनें" : isKannada ? "🔊 ಕೇಳಿ" : "🔊 Hear";
+  const stopLabel = isHindi ? "रोकें" : isKannada ? "ನಿಲ್ಲಿಸಿ" : "Stop";
+  const connectLabel = isHindi
+    ? "WhatsApp पर वकील से जुड़ें"
+    : isKannada
+      ? "WhatsApp ನಲ್ಲಿ ವಕೀಲರನ್ನು ಸಂಪರ್ಕಿಸಿ"
+      : "Connect with a Real Lawyer on WhatsApp";
+  const noMatchText = isHindi
+    ? "हमें सीधा जवाब नहीं मिला। WhatsApp पर अपनी समस्या बताएं — हमारी टीम मदद करेगी।"
+    : isKannada
+      ? "ನಮಗೆ ನೇರ ಉತ್ತರ ಸಿಗಲಿಲ್ಲ. WhatsApp ನಲ್ಲಿ ನಿಮ್ಮ ಸಮಸ್ಯೆ ಹೇಳಿ — ನಮ್ಮ ತಂಡ ಸಹಾಯ ಮಾಡುತ್ತದೆ."
+      : "We couldn't find a direct answer. Please describe your problem on WhatsApp and our legal team will help you.";
+  const chatOnWhatsApp = isHindi
+    ? "WhatsApp पर चैट करें"
+    : isKannada
+      ? "WhatsApp ನಲ್ಲಿ ಚಾಟ್ ಮಾಡಿ"
+      : "Chat on WhatsApp";
+
   return (
     <div className="min-h-screen screen-enter" style={{ background: NAVY_BG }}>
       <header
@@ -569,7 +1249,7 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
               value={textInput}
               onChange={(e) => setTextInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleTextSubmit()}
-              placeholder="Describe your legal problem..."
+              placeholder={searchPlaceholder}
               style={{
                 background: "rgba(255,255,255,0.05)",
                 border: `1px solid ${BORDER}`,
@@ -659,8 +1339,8 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
           </div>
         )}
 
-        {/* Loading state — only show while backend hasn't loaded AND fallback topics are being used */}
-        {isLoading && entries.length === 0 && (
+        {/* Loading state */}
+        {isLoading && entries.length === 0 && !isHindi && !isKannada && (
           <div
             data-ocid="voice_assistant.loading_state"
             style={{
@@ -670,7 +1350,11 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
               marginBottom: "1rem",
             }}
           >
-            Syncing latest responses...
+            {isHindi
+              ? "नवीनतम उत्तर लोड हो रहे हैं..."
+              : isKannada
+                ? "ಇತ್ತೀಚಿನ ಉತ್ತರಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ..."
+                : "Syncing latest responses..."}
           </div>
         )}
 
@@ -691,7 +1375,7 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
                 fontWeight: 600,
               }}
             >
-              Browse Topics
+              {browseTopicsLabel}
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "0.6rem" }}>
               {activeEntries.map((entry, i) => (
@@ -793,7 +1477,7 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
                   }}
                 >
                   {isSpeaking ? <VolumeX size={15} /> : <Volume2 size={15} />}
-                  {isSpeaking ? "Stop" : "🔊 Hear"}
+                  {isSpeaking ? stopLabel : hearLabel}
                 </button>
               </div>
 
@@ -827,7 +1511,7 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
                     marginBottom: "0.4rem",
                   }}
                 >
-                  👉 What to do
+                  {whatToDoLabel}
                 </p>
                 <p
                   style={{
@@ -852,7 +1536,7 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
                       marginBottom: "0.4rem",
                     }}
                   >
-                    📄 Documents needed
+                    {docsLabel}
                   </p>
                   <ul
                     style={{
@@ -890,17 +1574,21 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
                 {[
                   {
                     icon: "👨‍⚖️",
-                    label: "Lawyer type",
+                    label: lawyerLabel,
                     val: matchedEntry.lawyerType,
                   },
-                  { icon: "💰", label: "Cost", val: matchedEntry.cost },
-                  { icon: "⏳", label: "Time", val: matchedEntry.timeRequired },
+                  { icon: "💰", label: costLabel, val: matchedEntry.cost },
+                  {
+                    icon: "⏳",
+                    label: timeLabel,
+                    val: matchedEntry.timeRequired,
+                  },
                   {
                     icon: "📊",
-                    label: "Success rate",
+                    label: successLabel,
                     val: matchedEntry.successRate,
                   },
-                ].map(({ icon, label, val }) => (
+                ].map(({ label, val }) => (
                   <div
                     key={label}
                     style={{
@@ -917,7 +1605,7 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
                         marginBottom: "0.2rem",
                       }}
                     >
-                      {icon} {label}
+                      {label}
                     </p>
                     <p
                       style={{
@@ -949,7 +1637,7 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
                     margin: 0,
                   }}
                 >
-                  💡 <strong>Tip:</strong> {matchedEntry.tip}
+                  {tipLabel}: {matchedEntry.tip}
                 </p>
               </div>
 
@@ -994,8 +1682,7 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
                   textDecoration: "none",
                 }}
               >
-                <MessageCircle size={18} /> Connect with a Real Lawyer on
-                WhatsApp
+                <MessageCircle size={18} /> {connectLabel}
               </a>
             </motion.div>
           )}
@@ -1024,8 +1711,7 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
                   lineHeight: 1.6,
                 }}
               >
-                We couldn&apos;t find a direct answer. Please describe your
-                problem on WhatsApp and our legal team will help you.
+                {noMatchText}
               </p>
               <a
                 href="https://wa.me/918152889991"
@@ -1044,13 +1730,13 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
                   textDecoration: "none",
                 }}
               >
-                <MessageCircle size={18} /> Chat on WhatsApp
+                <MessageCircle size={18} /> {chatOnWhatsApp}
               </a>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Topic quick-buttons at bottom after result */}
+        {/* Other topics at bottom */}
         {matchedEntry && activeEntries.length > 1 && (
           <div style={{ marginTop: "1.5rem" }}>
             <p
@@ -1062,7 +1748,7 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
                 marginBottom: "0.6rem",
               }}
             >
-              Other Topics
+              {otherTopicsLabel}
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
               {activeEntries
