@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useActor } from "@/hooks/useActor";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -38,6 +37,331 @@ const DISCLAIMERS: Record<string, string> = {
     "এটি আইনি নির্দেশিকা, আইনি পরামর্শ নয়। আপনার নির্দিষ্ট পরিস্থিতির জন্য একজন যোগ্য আইনজীবীর সাথে পরামর্শ করুন।",
 };
 
+const FALLBACK_ENTRIES: ChatbotEntry[] = [
+  {
+    id: 1n,
+    topicKey: "land_dispute",
+    icon: "🏞️",
+    title: "Land Dispute / Ownership",
+    keywords: [
+      "land",
+      "property",
+      "ownership",
+      "dispute",
+      "plot",
+      "deed",
+      "title",
+      "encumbrance",
+    ],
+    intro:
+      "This usually happens when two people claim the same land or ownership is unclear. This is very common in India.",
+    whatToDo:
+      "Start by checking your property documents and then file a case in the civil court for ownership declaration.",
+    documents: [
+      "Sale deed / Title deed",
+      "Encumbrance certificate",
+      "Property tax receipts",
+      "Any agreement papers",
+    ],
+    lawyerType: "Civil / Property Lawyer",
+    cost: "₹20,000 – ₹2,00,000+",
+    timeRequired: "2–10 years",
+    successRate: "Good if documents are clear",
+    tip: "Always verify land records before buying to avoid future disputes.",
+  },
+  {
+    id: 2n,
+    topicKey: "fir_police",
+    icon: "👮",
+    title: "Police Not Filing FIR",
+    keywords: [
+      "fir",
+      "police",
+      "complaint",
+      "station",
+      "report",
+      "filing",
+      "refuse",
+      "refused",
+    ],
+    intro:
+      "If police refuse to file your FIR, it is your legal right to escalate.",
+    whatToDo:
+      "Go to the Superintendent of Police (SP), or file a complaint before the Magistrate under Section 156(3) CrPC.",
+    documents: [
+      "Written complaint",
+      "Proof (photos, messages, etc.)",
+      "ID proof",
+    ],
+    lawyerType: "Criminal Lawyer",
+    cost: "₹5,000 – ₹50,000",
+    timeRequired: "Few days to a few weeks",
+    successRate: "Very high",
+    tip: "You can also file an FIR online in many states via the state police portal.",
+  },
+  {
+    id: 3n,
+    topicKey: "bail",
+    icon: "⚖️",
+    title: "Bail Process",
+    keywords: [
+      "bail",
+      "custody",
+      "arrest",
+      "arrested",
+      "jail",
+      "release",
+      "interim",
+      "anticipatory",
+    ],
+    intro:
+      "Bail means temporary release from custody. It is not freedom from the case.",
+    whatToDo:
+      "Hire a criminal lawyer immediately and apply for bail in the nearest court.",
+    documents: ["FIR copy", "ID proof", "Surety documents"],
+    lawyerType: "Criminal Lawyer",
+    cost: "₹10,000 – ₹1,00,000",
+    timeRequired: "1 day to a few weeks",
+    successRate: "High for minor offences",
+    tip: "Cooperating with the investigation increases your chances of getting bail.",
+  },
+  {
+    id: 4n,
+    topicKey: "divorce",
+    icon: "👩‍⚖️",
+    title: "Divorce Procedure",
+    keywords: [
+      "divorce",
+      "separation",
+      "marriage",
+      "wife",
+      "husband",
+      "mutual",
+      "contested",
+      "family court",
+      "alimony",
+      "file a divorce",
+      "want divorce",
+      "getting divorce",
+    ],
+    intro:
+      "Divorce can be mutual (faster) or contested (longer). Mutual divorce saves time and reduces stress.",
+    whatToDo:
+      "File a divorce petition in the family court. Hiring a family lawyer is strongly recommended.",
+    documents: [
+      "Marriage certificate",
+      "Address proof",
+      "Evidence (if contested)",
+      "Income details",
+    ],
+    lawyerType: "Family Lawyer",
+    cost: "₹20,000 – ₹2,00,000",
+    timeRequired: "Mutual: 6 months–1 year | Contested: 2–5 years",
+    successRate: "Very high if legally valid grounds exist",
+    tip: "Mutual divorce is always smoother, cheaper, and less emotionally draining.",
+  },
+  {
+    id: 5n,
+    topicKey: "domestic_violence",
+    icon: "🛡️",
+    title: "Domestic Violence",
+    keywords: [
+      "domestic",
+      "violence",
+      "abuse",
+      "harassment",
+      "beating",
+      "threat",
+      "dowry",
+    ],
+    intro:
+      "You are legally protected. Physical, emotional, and financial abuse are all punishable under Indian law.",
+    whatToDo:
+      "File a complaint under the Protection of Women from Domestic Violence Act or approach the nearest police women's cell.",
+    documents: [
+      "Medical reports (if any)",
+      "Messages / evidence",
+      "Witness details",
+    ],
+    lawyerType: "Family / Criminal Lawyer",
+    cost: "₹10,000 – ₹1,00,000",
+    timeRequired: "Immediate protection orders are possible",
+    successRate: "High if evidence exists",
+    tip: "You can get protection orders, residence rights, and maintenance through the court.",
+  },
+  {
+    id: 6n,
+    topicKey: "salary",
+    icon: "💼",
+    title: "Salary Not Paid",
+    keywords: [
+      "salary",
+      "wages",
+      "payment",
+      "employer",
+      "company",
+      "job",
+      "work",
+      "labour",
+      "fired",
+      "terminated",
+    ],
+    intro: "Employers cannot legally withhold your salary.",
+    whatToDo:
+      "File a complaint with the Labour Commissioner or approach the Labour Court.",
+    documents: ["Offer letter", "Salary slips", "Bank statements"],
+    lawyerType: "Labour Lawyer",
+    cost: "₹5,000 – ₹50,000",
+    timeRequired: "2–6 months",
+    successRate: "Very high",
+    tip: "Always keep all employment documents safely.",
+  },
+  {
+    id: 7n,
+    topicKey: "cheque_bounce",
+    icon: "🏦",
+    title: "Cheque Bounce",
+    keywords: [
+      "cheque",
+      "check",
+      "bounce",
+      "dishonour",
+      "neft",
+      "rtgs",
+      "loan",
+    ],
+    intro:
+      "A bounced cheque is a criminal offence under Section 138 of the Negotiable Instruments Act.",
+    whatToDo:
+      "Send a legal notice to the defaulter within 30 days of receiving the bank memo, then file a case.",
+    documents: ["Bounced cheque", "Bank memo", "Legal notice copy"],
+    lawyerType: "Criminal / Civil Lawyer",
+    cost: "₹10,000 – ₹1,00,000",
+    timeRequired: "6 months – 2 years",
+    successRate: "High if all documents are in order",
+    tip: "Always keep proof of every financial transaction.",
+  },
+  {
+    id: 8n,
+    topicKey: "consumer",
+    icon: "🛍️",
+    title: "Consumer / Defective Product",
+    keywords: [
+      "consumer",
+      "product",
+      "defective",
+      "refund",
+      "service",
+      "fraud",
+      "cheated",
+      "amazon",
+      "flipkart",
+    ],
+    intro:
+      "If you received a bad product or poor service, you can claim a full refund or compensation.",
+    whatToDo:
+      "File a complaint in consumer court. You can also file online at edaakhil.nic.in.",
+    documents: ["Bill / Invoice", "Warranty card", "Complaint proof"],
+    lawyerType: "Consumer Lawyer (optional)",
+    cost: "₹1,000 – ₹20,000",
+    timeRequired: "3–12 months",
+    successRate: "High",
+    tip: "For small claims below ₹50 lakh, you do not need a lawyer in consumer court.",
+  },
+  {
+    id: 9n,
+    topicKey: "cyber_fraud",
+    icon: "🌐",
+    title: "Online Fraud / Cyber Crime",
+    keywords: [
+      "cyber",
+      "online",
+      "fraud",
+      "scam",
+      "hack",
+      "otp",
+      "upi",
+      "phishing",
+      "money",
+      "stolen",
+      "internet",
+    ],
+    intro:
+      "If money was stolen online, act FAST. Time is critical for recovery.",
+    whatToDo:
+      "Immediately call the cyber helpline 1930, then report online at cybercrime.gov.in.",
+    documents: [
+      "Transaction details",
+      "Screenshots of fraud",
+      "Bank account information",
+    ],
+    lawyerType: "Cyber Lawyer (optional)",
+    cost: "Mostly free to file a complaint",
+    timeRequired: "Immediate action needed",
+    successRate: "Medium (depends on how quickly you report)",
+    tip: "Report within hours of the fraud for the best chance of recovering your money.",
+  },
+  {
+    id: 10n,
+    topicKey: "builder_rera",
+    icon: "🏠",
+    title: "Builder Not Giving Possession",
+    keywords: [
+      "builder",
+      "possession",
+      "flat",
+      "apartment",
+      "rera",
+      "construction",
+      "delay",
+      "project",
+      "housing",
+      "developer",
+    ],
+    intro:
+      "Builder delays are common in India, but the law strongly protects buyers under RERA.",
+    whatToDo:
+      "File a complaint in the RERA authority of your state or approach the consumer court.",
+    documents: ["Sale agreement", "Payment receipts", "Builder communication"],
+    lawyerType: "Property Lawyer",
+    cost: "₹10,000 – ₹1,00,000",
+    timeRequired: "6 months – 3 years",
+    successRate: "High in RERA",
+    tip: "RERA is specifically designed for such disputes and is much faster than civil courts.",
+  },
+  {
+    id: 11n,
+    topicKey: "fundamental_rights",
+    icon: "⚖️",
+    title: "Rights Violation by Authority",
+    keywords: [
+      "rights",
+      "fundamental",
+      "authority",
+      "government",
+      "violation",
+      "constitutional",
+      "writ",
+      "high court",
+      "supreme court",
+    ],
+    intro:
+      "If your basic constitutional rights are violated by any authority, you can directly approach the High Court or Supreme Court.",
+    whatToDo:
+      "File a writ petition in the High Court (Article 226) or Supreme Court (Article 32) of India.",
+    documents: [
+      "Proof of rights violation",
+      "Identity proof",
+      "Supporting evidence",
+    ],
+    lawyerType: "Constitutional Lawyer",
+    cost: "₹20,000 – ₹2,00,000+",
+    timeRequired: "A few weeks to several months",
+    successRate: "Depends on strength of evidence",
+    tip: "Courts take rights violations very seriously. Document everything carefully.",
+  },
+];
+
 type SpeechRecognitionEvent = {
   results: { [key: number]: { [key: number]: { transcript: string } } };
 };
@@ -59,27 +383,6 @@ declare global {
     SpeechRecognition: new () => SpeechRecognitionInstance;
     webkitSpeechRecognition: new () => SpeechRecognitionInstance;
   }
-}
-
-function splitIntoChunks(text: string, maxLen = 180): string[] {
-  const sentences = text.split(/(?<=[।.!?])\s+/);
-  const chunks: string[] = [];
-  let current = "";
-  for (const s of sentences) {
-    if (`${current} ${s}`.trim().length > maxLen) {
-      if (current.trim()) chunks.push(current.trim());
-      current = s;
-    } else {
-      current = current ? `${current} ${s}` : s;
-    }
-  }
-  if (current.trim()) chunks.push(current.trim());
-  return chunks.length > 0 ? chunks : [text.slice(0, maxLen)];
-}
-
-function ttsUrl(text: string, lang: string): string {
-  const langCode = lang.split("-")[0];
-  return `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=${langCode}&client=tw-ob`;
 }
 
 function matchEntry(
@@ -114,7 +417,6 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
   const [isSpeaking, setIsSpeaking] = useState(false);
 
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const { data: entries = [], isLoading } = useQuery<ChatbotEntry[]>({
     queryKey: ["chatbotEntries"],
@@ -125,33 +427,23 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
     enabled: !!actor && !isFetching,
   });
 
-  const stopCurrentSpeech = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.src = "";
-      audioRef.current = null;
-    }
-    setIsSpeaking(false);
-  };
+  const activeEntries = entries.length > 0 ? entries : FALLBACK_ENTRIES;
 
-  const playChunks = (chunks: string[], index: number) => {
-    if (index >= chunks.length) {
-      setIsSpeaking(false);
-      return;
-    }
-    const audio = new Audio(ttsUrl(chunks[index], langCode));
-    audioRef.current = audio;
-    audio.onended = () => playChunks(chunks, index + 1);
-    audio.onerror = () => playChunks(chunks, index + 1);
-    audio.play().catch(() => setIsSpeaking(false));
+  const stopCurrentSpeech = () => {
+    window.speechSynthesis.cancel();
+    setIsSpeaking(false);
   };
 
   const speakEntry = (entry: ChatbotEntry) => {
     stopCurrentSpeech();
     const text = `${entry.intro}. ${entry.whatToDo}. ${entry.tip}`;
-    const chunks = splitIntoChunks(text);
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = langCode;
+    utterance.rate = 1.1;
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
     setIsSpeaking(true);
-    playChunks(chunks, 0);
+    window.speechSynthesis.speak(utterance);
   };
 
   const toggleSpeak = (entry: ChatbotEntry) => {
@@ -164,7 +456,7 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
 
   const processQuery = (query: string) => {
     stopCurrentSpeech();
-    const found = matchEntry(query, entries);
+    const found = matchEntry(query, activeEntries);
     if (found) {
       setMatchedEntry(found);
       setNoMatch(false);
@@ -367,32 +659,23 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
           </div>
         )}
 
-        {/* Loading state */}
-        {isLoading && (
+        {/* Loading state — only show while backend hasn't loaded AND fallback topics are being used */}
+        {isLoading && entries.length === 0 && (
           <div
             data-ocid="voice_assistant.loading_state"
             style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "0.75rem",
-              marginBottom: "1.5rem",
+              color: "rgba(255,255,255,0.3)",
+              fontSize: "0.8rem",
+              textAlign: "center",
+              marginBottom: "1rem",
             }}
           >
-            {[1, 2, 3].map((i) => (
-              <Skeleton
-                key={i}
-                style={{
-                  height: "64px",
-                  borderRadius: "12px",
-                  background: "rgba(255,255,255,0.05)",
-                }}
-              />
-            ))}
+            Syncing latest responses...
           </div>
         )}
 
         {/* Topic quick-buttons */}
-        {!isLoading && !matchedEntry && !noMatch && entries.length > 0 && (
+        {!matchedEntry && !noMatch && activeEntries.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -411,7 +694,7 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
               Browse Topics
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "0.6rem" }}>
-              {entries.map((entry, i) => (
+              {activeEntries.map((entry, i) => (
                 <button
                   key={entry.topicKey}
                   type="button"
@@ -768,7 +1051,7 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
         </AnimatePresence>
 
         {/* Topic quick-buttons at bottom after result */}
-        {matchedEntry && entries.length > 1 && (
+        {matchedEntry && activeEntries.length > 1 && (
           <div style={{ marginTop: "1.5rem" }}>
             <p
               style={{
@@ -782,7 +1065,7 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
               Other Topics
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-              {entries
+              {activeEntries
                 .filter((e) => e.topicKey !== matchedEntry.topicKey)
                 .map((entry, i) => (
                   <button
