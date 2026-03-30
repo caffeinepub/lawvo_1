@@ -2,10 +2,10 @@ import { Volume2, VolumeX } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "../i18n/useTranslation";
-import { VakyomLogo } from "./VakyomLogo";
 
 interface WelcomeSplashProps {
   onDismiss: () => void;
+  userName?: string;
 }
 
 // Split text into chunks of max `maxLen` characters, breaking at sentence boundaries
@@ -31,7 +31,193 @@ function ttsUrl(text: string, lang: string): string {
   return `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=${langCode}&client=tw-ob`;
 }
 
-export function WelcomeSplash({ onDismiss }: WelcomeSplashProps) {
+// Animated AI Legal Character SVG
+function AICharacter({ speaking }: { speaking: boolean }) {
+  return (
+    <div
+      className="relative flex items-center justify-center"
+      style={{ width: 100, height: 100 }}
+    >
+      {/* Pulsing rings when speaking */}
+      {speaking && (
+        <>
+          <motion.div
+            className="absolute rounded-full"
+            style={{
+              width: 90,
+              height: 90,
+              border: "2px solid oklch(0.72 0.14 78 / 0.6)",
+            }}
+            animate={{ scale: [1, 1.3, 1], opacity: [0.6, 0, 0.6] }}
+            transition={{
+              duration: 1.5,
+              repeat: Number.POSITIVE_INFINITY,
+              ease: "easeOut",
+            }}
+          />
+          <motion.div
+            className="absolute rounded-full"
+            style={{
+              width: 90,
+              height: 90,
+              border: "2px solid oklch(0.72 0.14 78 / 0.4)",
+            }}
+            animate={{ scale: [1, 1.6, 1], opacity: [0.4, 0, 0.4] }}
+            transition={{
+              duration: 1.5,
+              repeat: Number.POSITIVE_INFINITY,
+              ease: "easeOut",
+              delay: 0.4,
+            }}
+          />
+        </>
+      )}
+
+      {/* Main AI Character SVG */}
+      <motion.svg
+        aria-label="Vakyom AI Legal Guide"
+        width="80"
+        height="80"
+        viewBox="0 0 80 80"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        animate={speaking ? { scale: [1, 1.05, 1] } : { scale: 1 }}
+        transition={
+          speaking ? { duration: 1.2, repeat: Number.POSITIVE_INFINITY } : {}
+        }
+        role="img"
+      >
+        <title>Vakyom AI Legal Guide</title>
+        {/* Outer glow circle */}
+        <circle
+          cx="40"
+          cy="40"
+          r="38"
+          fill="oklch(0.13 0.04 250)"
+          stroke="oklch(0.72 0.14 78)"
+          strokeWidth="2"
+        />
+
+        {/* Robe / body at bottom */}
+        <path
+          d="M16 72 Q24 58 40 56 Q56 58 64 72 Z"
+          fill="oklch(0.65 0.12 78)"
+        />
+        <path
+          d="M22 72 Q28 61 40 59 Q52 61 58 72 Z"
+          fill="oklch(0.72 0.14 78)"
+        />
+
+        {/* Scales of Justice on chest */}
+        <line
+          x1="40"
+          y1="62"
+          x2="40"
+          y2="68"
+          stroke="oklch(0.13 0.04 250)"
+          strokeWidth="1.2"
+        />
+        <line
+          x1="34"
+          y1="64"
+          x2="46"
+          y2="64"
+          stroke="oklch(0.13 0.04 250)"
+          strokeWidth="1.2"
+        />
+        <path
+          d="M34 64 L31 67 L37 67 Z"
+          fill="oklch(0.13 0.04 250)"
+          opacity="0.7"
+        />
+        <path
+          d="M46 64 L43 67 L49 67 Z"
+          fill="oklch(0.13 0.04 250)"
+          opacity="0.7"
+        />
+
+        {/* Head */}
+        <circle cx="40" cy="35" r="18" fill="oklch(0.72 0.14 78)" />
+        <circle cx="40" cy="35" r="17" fill="url(#headGrad)" />
+
+        {/* Turban / headband */}
+        <path
+          d="M22 32 Q26 22 40 20 Q54 22 58 32"
+          stroke="oklch(0.55 0.10 78)"
+          strokeWidth="3"
+          fill="none"
+          strokeLinecap="round"
+        />
+        <circle cx="40" cy="20" r="3" fill="oklch(0.72 0.14 78)" />
+        <circle cx="40" cy="20" r="1.5" fill="oklch(0.13 0.04 250)" />
+
+        {/* Eyes */}
+        <ellipse cx="33" cy="35" rx="3.5" ry="4" fill="oklch(0.13 0.04 250)" />
+        <ellipse cx="47" cy="35" rx="3.5" ry="4" fill="oklch(0.13 0.04 250)" />
+        {/* Glowing pupils */}
+        <motion.ellipse
+          cx="33"
+          cy="35"
+          rx="2"
+          ry="2.5"
+          fill="oklch(0.85 0.18 78)"
+          animate={{ opacity: speaking ? [0.7, 1, 0.7] : 1 }}
+          transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY }}
+        />
+        <motion.ellipse
+          cx="47"
+          cy="35"
+          rx="2"
+          ry="2.5"
+          fill="oklch(0.85 0.18 78)"
+          animate={{ opacity: speaking ? [0.7, 1, 0.7] : 1 }}
+          transition={{
+            duration: 1,
+            repeat: Number.POSITIVE_INFINITY,
+            delay: 0.1,
+          }}
+        />
+        {/* Eye shine */}
+        <circle cx="34" cy="33.5" r="0.7" fill="white" opacity="0.8" />
+        <circle cx="48" cy="33.5" r="0.7" fill="white" opacity="0.8" />
+
+        {/* Smile */}
+        <path
+          d="M34 42 Q40 47 46 42"
+          stroke="oklch(0.13 0.04 250)"
+          strokeWidth="1.5"
+          fill="none"
+          strokeLinecap="round"
+        />
+
+        {/* Nose */}
+        <path
+          d="M39 38 Q40 40 41 38"
+          stroke="oklch(0.55 0.10 78)"
+          strokeWidth="1"
+          fill="none"
+          strokeLinecap="round"
+        />
+
+        {/* Forehead bindi */}
+        <circle cx="40" cy="28" r="1.5" fill="oklch(0.13 0.04 250)" />
+        <circle cx="40" cy="28" r="0.8" fill="oklch(0.72 0.14 78)" />
+
+        <defs>
+          <radialGradient id="headGrad" cx="40%" cy="35%" r="60%">
+            <stop offset="0%" stopColor="oklch(0.82 0.16 78)" />
+            <stop offset="100%" stopColor="oklch(0.65 0.12 78)" />
+          </radialGradient>
+        </defs>
+      </motion.svg>
+    </div>
+  );
+}
+
+export function WelcomeSplash({
+  onDismiss,
+  userName = "",
+}: WelcomeSplashProps) {
   const { t } = useTranslation();
   const [speaking, setSpeaking] = useState(false);
   const [muted, setMuted] = useState(false);
@@ -40,6 +226,16 @@ export function WelcomeSplash({ onDismiss }: WelcomeSplashProps) {
   const chunksRef = useRef<string[]>([]);
   const chunkIndexRef = useRef(0);
   const stoppedRef = useRef(false);
+
+  // Personalize speech text with user's name
+  const personalizedSpeech = userName
+    ? t.welcome_speech.replace(/\{name\}/g, userName)
+    : t.welcome_speech.replace(/\{name\}[,!]?\s*/g, "");
+
+  // Personalized greeting
+  const personalizedGreeting = userName
+    ? t.splash_greeting.replace(/\{name\}/g, userName)
+    : "";
 
   const stopAudio = useCallback(() => {
     stoppedRef.current = true;
@@ -79,10 +275,10 @@ export function WelcomeSplash({ onDismiss }: WelcomeSplashProps) {
     if (mutedRef.current) return;
     stopAudio();
     stoppedRef.current = false;
-    chunksRef.current = splitIntoChunks(t.welcome_speech);
+    chunksRef.current = splitIntoChunks(personalizedSpeech);
     chunkIndexRef.current = 0;
     playChunk(0);
-  }, [t.welcome_speech, stopAudio, playChunk]);
+  }, [personalizedSpeech, stopAudio, playChunk]);
 
   useEffect(() => {
     const timer = setTimeout(speakMessage, 800);
@@ -108,7 +304,7 @@ export function WelcomeSplash({ onDismiss }: WelcomeSplashProps) {
     onDismiss();
   };
 
-  const speechLines = t.welcome_speech
+  const speechLines = personalizedSpeech
     .split(/[.।]\s*/)
     .map((s) => s.trim())
     .filter((s) => s.length > 0)
@@ -159,27 +355,19 @@ export function WelcomeSplash({ onDismiss }: WelcomeSplashProps) {
           />
 
           <div className="p-8 text-center">
+            {/* AI Character */}
             <motion.div
-              className="flex justify-center mb-5"
-              animate={speaking ? { scale: [1, 1.08, 1] } : { scale: 1 }}
-              transition={
-                speaking
-                  ? { duration: 1.2, repeat: Number.POSITIVE_INFINITY }
-                  : {}
-              }
+              className="flex justify-center mb-4"
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{
+                type: "spring",
+                damping: 14,
+                stiffness: 180,
+                delay: 0.1,
+              }}
             >
-              <div
-                className="rounded-2xl p-3"
-                style={{
-                  background: "white",
-                  boxShadow: speaking
-                    ? "0 0 30px oklch(0.72 0.14 78 / 0.8)"
-                    : "0 0 15px oklch(0.72 0.14 78 / 0.4)",
-                  transition: "box-shadow 0.3s",
-                }}
-              >
-                <VakyomLogo size={60} />
-              </div>
+              <AICharacter speaking={speaking} />
             </motion.div>
 
             <motion.h1
@@ -192,13 +380,34 @@ export function WelcomeSplash({ onDismiss }: WelcomeSplashProps) {
               Vakyom
             </motion.h1>
             <motion.p
-              className="text-white/50 text-sm mb-6 font-display italic"
+              className="text-white/50 text-sm mb-3 font-display italic"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
             >
               {t.splash_tagline}
             </motion.p>
+
+            {/* Personalized greeting */}
+            {personalizedGreeting && (
+              <motion.div
+                className="mb-4 px-4 py-2 rounded-xl text-center"
+                style={{
+                  background: "oklch(0.72 0.14 78 / 0.15)",
+                  border: "1px solid oklch(0.72 0.14 78 / 0.4)",
+                }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.35 }}
+              >
+                <span
+                  className="text-lg font-bold"
+                  style={{ color: "oklch(0.85 0.18 78)" }}
+                >
+                  {personalizedGreeting}
+                </span>
+              </motion.div>
+            )}
 
             <motion.div
               className="rounded-2xl p-5 mb-6 text-left space-y-3"
@@ -262,6 +471,7 @@ export function WelcomeSplash({ onDismiss }: WelcomeSplashProps) {
             <div className="flex gap-3">
               <button
                 type="button"
+                data-ocid="splash.toggle"
                 onClick={toggleMute}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all"
                 style={{
@@ -281,6 +491,7 @@ export function WelcomeSplash({ onDismiss }: WelcomeSplashProps) {
               </button>
               <motion.button
                 type="button"
+                data-ocid="splash.primary_button"
                 onClick={handleDismiss}
                 className="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all"
                 style={{

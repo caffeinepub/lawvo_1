@@ -76,27 +76,23 @@ export function LoginScreen({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    if (!actor) {
-      setSubmitError("Connecting to backend… please try again.");
-      return;
-    }
     setIsSubmitting(true);
     setSubmitError("");
+    // Always save locally first so the user can proceed regardless of backend status
+    localStorage.setItem("vakyom_user_name", name.trim());
+    localStorage.setItem("vakyom_user_phone", phone.trim());
+    localStorage.setItem("vakyom_role", "user");
     try {
-      const ok = await actor.registerOrUpdateUser(name.trim(), phone.trim());
-      if (ok) {
-        localStorage.setItem("vakyom_user_name", name.trim());
-        localStorage.setItem("vakyom_role", "user");
-        onSuccess();
-      } else {
-        setSubmitError("Registration failed. Please try again.");
+      if (actor) {
+        await actor.registerOrUpdateUser(name.trim(), phone.trim());
       }
     } catch (err) {
-      console.error(err);
-      setSubmitError("Something went wrong. Please try again.");
+      // Backend error is non-blocking -- user can still use the app
+      console.error("Backend registration error (non-blocking):", err);
     } finally {
       setIsSubmitting(false);
     }
+    onSuccess();
   };
 
   const ROLES: {

@@ -1,100 +1,67 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Loader2, Mic, MicOff, Scale, Send } from "lucide-react";
+import {
+  ArrowLeft,
+  Loader2,
+  Mic,
+  MicOff,
+  Scale,
+  Send,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { VakyomLogo } from "../components/VakyomLogo";
 import { useTranslation } from "../i18n/useTranslation";
 
 const SIMULATED_RESPONSE_BY_LANG: Record<string, string> = {
   "en-IN": `Based on your situation, here is what you should do:
 
-**Immediate Steps (Within 7 Days)**
-• Do not ignore the notice — responding is legally required in most cases
-• Read the notice carefully to identify the sender, the legal claim, and the deadline to respond
+Immediate Steps - Within 7 Days: Do not ignore the notice, responding is legally required in most cases. Read the notice carefully to identify the sender, the legal claim, and the deadline to respond.
 
-**Within 30 Days**
-• Gather all property-related documents: title deed, sale agreement, tax receipts, and mutation records
-• Consult a property lawyer to understand the legal implications and draft a proper response
+Within 30 Days: Gather all property-related documents including title deed, sale agreement, tax receipts, and mutation records. Consult a property lawyer to understand the legal implications and draft a proper response.
 
-**Important Points**
-• A legal notice is a formal communication — ignoring it may result in court proceedings against you
-• Your response (or non-response) can significantly impact future legal proceedings
+Important Points: A legal notice is a formal communication. Ignoring it may result in court proceedings against you. Your response can significantly impact future legal proceedings.
 
-**Recommended Action**
-Consult a qualified property lawyer within 2 weeks. Vakyom can connect you with verified property law experts in your city.
+Recommended Action: Consult a qualified property lawyer within 2 weeks. Vakyom can connect you with verified property law experts in your city.
 
-*Disclaimer: This is general legal information, not legal advice.*`,
+Disclaimer: This is general legal information, not legal advice.`,
   "hi-IN": `आपकी स्थिति के आधार पर, यहां बताया गया है कि आपको क्या करना चाहिए:
 
-**तुरंत कदम (7 दिनों के भीतर)**
-• नोटिस को नजरअंदाज न करें — अधिकांश मामलों में जवाब देना कानूनी रूप से आवश्यक है
-• नोटिस को ध्यान से पढ़ें और प्रेषक, कानूनी दावे और जवाब देने की समय-सीमा की पहचान करें
+तुरंत कदम, 7 दिनों के भीतर: नोटिस को नजरअंदाज न करें, अधिकांश मामलों में जवाब देना कानूनी रूप से आवश्यक है। नोटिस को ध्यान से पढ़ें और प्रेषक, कानूनी दावे और जवाब देने की समय-सीमा की पहचान करें।
 
-**30 दिनों के भीतर**
-• सभी संपत्ति-संबंधित दस्तावेज इकट्ठा करें: शीर्षक विलेख, बिक्री समझौता, कर रसीदें
-• कानूनी निहितार्थों को समझने के लिए एक संपत्ति वकील से परामर्श करें
+30 दिनों के भीतर: सभी संपत्ति-संबंधित दस्तावेज इकट्ठा करें। कानूनी निहितार्थों को समझने के लिए एक संपत्ति वकील से परामर्श करें।
 
-**अनुशंसित कार्रवाई**
-2 सप्ताह के भीतर एक योग्य संपत्ति वकील से परामर्श करें। Vakyom आपके शहर में सत्यापित विशेषज्ञों से आपको जोड़ सकता है।
-
-*अस्वीकरण: यह सामान्य कानूनी जानकारी है, कानूनी सलाह नहीं।*`,
+अनुशंसित कार्रवाई: 2 सप्ताह के भीतर एक योग्य संपत्ति वकील से परामर्श करें। Vakyom आपके शहर में सत्यापित विशेषज्ञों से आपको जोड़ सकता है।`,
   "kn-IN": `ನಿಮ್ಮ ಪರಿಸ್ಥಿತಿಯ ಆಧಾರದ ಮೇಲೆ, ನೀವು ಏನು ಮಾಡಬೇಕು ಎಂಬುದು ಇಲ್ಲಿದೆ:
 
-**ತಕ್ಷಣದ ಹಂತಗಳು (7 ದಿನಗಳಲ್ಲಿ)**
-• ನೋಟಿಸ್ ಅನ್ನು ನಿರ್ಲಕ್ಷಿಸಬೇಡಿ — ಹೆಚ್ಚಿನ ಪ್ರಕರಣಗಳಲ್ಲಿ ಪ್ರತಿಕ್ರಿಯಿಸುವುದು ಕಾನೂನುಬದ್ಧವಾಗಿ ಅಗತ್ಯ
-• ನೋಟಿಸ್ ಅನ್ನು ಎಚ್ಚರಿಕೆಯಿಂದ ಓದಿ ಮತ್ತು ಕಳುಹಿಸಿದವರ ಹೆಸರು, ಕಾನೂನು ಹಕ್ಕು ಮತ್ತು ಗಡುವಿನ ದಿನಾಂಕ ಗುರುತಿಸಿ
+ತಕ್ಷಣದ ಹಂತಗಳು, 7 ದಿನಗಳಲ್ಲಿ: ನೋಟಿಸ್ ಅನ್ನು ನಿರ್ಲಕ್ಷಿಸಬೇಡಿ, ಹೆಚ್ಚಿನ ಪ್ರಕರಣಗಳಲ್ಲಿ ಪ್ರತಿಕ್ರಿಯಿಸುವುದು ಕಾನೂನುಬದ್ಧವಾಗಿ ಅಗತ್ಯ. ನೋಟಿಸ್ ಅನ್ನು ಎಚ್ಚರಿಕೆಯಿಂದ ಓದಿ ಮತ್ತು ಕಳುಹಿಸಿದವರ ಹೆಸರು, ಕಾನೂನು ಹಕ್ಕು ಮತ್ತು ಗಡುವಿನ ದಿನಾಂಕ ಗುರುತಿಸಿ.
 
-**30 ದಿನಗಳಲ್ಲಿ**
-• ಎಲ್ಲಾ ಆಸ್ತಿ-ಸಂಬಂಧಿತ ದಾಖಲೆಗಳನ್ನು ಸಂಗ್ರಹಿಸಿ: ಶೀರ್ಷಿಕೆ ದಾಖಲೆ, ಮಾರಾಟ ಒಪ್ಪಂದ, ತೆರಿಗೆ ರಶೀದಿಗಳು
-• ಕಾನೂನು ಪರಿಣಾಮಗಳನ್ನು ಅರ್ಥಮಾಡಿಕೊಳ್ಳಲು ಆಸ್ತಿ ವಕೀಲರನ್ನು ಸಂಪರ್ಕಿಸಿ
+30 ದಿನಗಳಲ್ಲಿ: ಎಲ್ಲಾ ಆಸ್ತಿ ಸಂಬಂಧಿತ ದಾಖಲೆಗಳನ್ನು ಸಂಗ್ರಹಿಸಿ. ಕಾನೂನು ಪರಿಣಾಮಗಳನ್ನು ಅರ್ಥಮಾಡಿಕೊಳ್ಳಲು ಆಸ್ತಿ ವಕೀಲರನ್ನು ಸಂಪರ್ಕಿಸಿ.
 
-**ಶಿಫಾರಸು ಮಾಡಿದ ಕ್ರಮ**
-2 ವಾರಗಳಲ್ಲಿ ಅರ್ಹ ಆಸ್ತಿ ವಕೀಲರನ್ನು ಸಂಪರ್ಕಿಸಿ। Vakyom ನಿಮ್ಮ ನಗರದಲ್ಲಿ ಪರಿಶೀಲಿಸಲಾದ ತಜ್ಞರೊಂದಿಗೆ ನಿಮ್ಮನ್ನು ಸಂಪರ್ಕಿಸಬಹುದು.
-
-*ಹಕ್ಕು ನಿರಾಕರಣೆ: ಇದು ಸಾಮಾನ್ಯ ಕಾನೂನು ಮಾಹಿತಿಯಾಗಿದೆ, ಕಾನೂನು ಸಲಹೆಯಲ್ಲ.*`,
+ಶಿಫಾರಸು ಮಾಡಿದ ಕ್ರಮ: 2 ವಾರಗಳಲ್ಲಿ ಅರ್ಹ ಆಸ್ತಿ ವಕೀಲರನ್ನು ಸಂಪರ್ಕಿಸಿ. Vakyom ನಿಮ್ಮ ನಗರದಲ್ಲಿ ಪರಿಶೀಲಿಸಲಾದ ತಜ್ಞರೊಂದಿಗೆ ನಿಮ್ಮನ್ನು ಸಂಪರ್ಕಿಸಬಹುದು.`,
   "ta-IN": `உங்கள் நிலைமையின் அடிப்படையில், நீங்கள் என்ன செய்ய வேண்டும் என்பது இங்கே:
 
-**உடனடி நடவடிக்கைகள் (7 நாட்களுக்குள்)**
-• நோட்டீஸை புறக்கணிக்காதீர்கள் — பெரும்பாலான வழக்குகளில் பதிலளிப்பது சட்டப்படி அவசியம்
-• நோட்டீஸை கவனமாக படியுங்கள் மற்றும் அனுப்புநர், சட்ட கோரிக்கை மற்றும் காலக்கெடுவை கண்டறியுங்கள்
+உடனடி நடவடிக்கைகள், 7 நாட்களுக்குள்: நோட்டீஸை புறக்கணிக்காதீர்கள், பெரும்பாலான வழக்குகளில் பதிலளிப்பது சட்டப்படி அவசியம். நோட்டீஸை கவனமாக படியுங்கள் மற்றும் அனுப்புநர், சட்ட கோரிக்கை மற்றும் காலக்கெடுவை கண்டறியுங்கள்.
 
-**30 நாட்களுக்குள்**
-• அனைத்து சொத்து தொடர்பான ஆவணங்களை சேகரியுங்கள்: பட்டா, விற்பனை ஒப்பந்தம், வரி ரசீதுகள்
-• ஒரு சொத்து வழக்கறிஞரை அணுகுங்கள்
+30 நாட்களுக்குள்: அனைத்து சொத்து தொடர்பான ஆவணங்களை சேகரியுங்கள். ஒரு சொத்து வழக்கறிஞரை அணுகுங்கள்.
 
-**பரிந்துரைக்கப்பட்ட நடவடிக்கை**
-2 வாரங்களுக்குள் தகுதிவாய்ந்த சொத்து வழக்கறிஞரை அணுகுங்கள். Vakyom உங்கள் நகரில் சரிபார்க்கப்பட்ட வல்லுநர்களுடன் உங்களை இணைக்கலாம்.
-
-*மறுப்பு: இது பொதுவான சட்ட தகவல், சட்ட ஆலோசனை அல்ல.*`,
+பரிந்துரைக்கப்பட்ட நடவடிக்கை: 2 வாரங்களுக்குள் தகுதிவாய்ந்த சொத்து வழக்கறிஞரை அணுகுங்கள். Vakyom உங்கள் நகரில் சரிபார்க்கப்பட்ட வல்லுநர்களுடன் உங்களை இணைக்கலாம்.`,
   "te-IN": `మీ పరిస్థితి ఆధారంగా, మీరు ఏమి చేయాలో ఇక్కడ ఉంది:
 
-**తక్షణ చర్యలు (7 రోజులలోపు)**
-• నోటీసును నిర్లక్ష్యం చేయవద్దు — చాలా సందర్భాలలో స్పందించడం చట్టపరంగా అవసరం
-• నోటీసును జాగ్రత్తగా చదవండి మరియు పంపిన వ్యక్తి, చట్టపరమైన వాదన మరియు గడువు తేదీని గుర్తించండి
+తక్షణ చర్యలు, 7 రోజులలోపు: నోటీసును నిర్లక్ష్యం చేయవద్దు, చాలా సందర్భాలలో స్పందించడం చట్టపరంగా అవసరం. నోటీసును జాగ్రత్తగా చదవండి మరియు పంపిన వ్యక్తి, చట్టపరమైన వాదన మరియు గడువు తేదీని గుర్తించండి.
 
-**30 రోజులలోపు**
-• అన్ని ఆస్తి-సంబంధిత పత్రాలను సేకరించండి: టైటిల్ డీడ్, అమ్మకం ఒప్పందం, పన్ను రసీదులు
-• చట్టపరమైన చిక్కులను అర్థం చేసుకోవడానికి ఆస్తి న్యాయవాదిని సంప్రదించండి
+30 రోజులలోపు: అన్ని ఆస్తి సంబంధిత పత్రాలను సేకరించండి. చట్టపరమైన చిక్కులను అర్థం చేసుకోవడానికి ఆస్తి న్యాయవాదిని సంప్రదించండి.
 
-**సిఫార్సు చేయబడిన చర్య**
-2 వారాలలోపు అర్హులైన ఆస్తి న్యాయవాదిని సంప్రదించండి. Vakyom మీ నగరంలో ధృవీకరించబడిన నిపుణులతో మిమ్మల్ని అనుసంధానించగలదు.
-
-*నిరాకరణ: ఇది సాధారణ చట్టపరమైన సమాచారం, చట్టపరమైన సలహా కాదు.*`,
+సిఫార్సు చేయబడిన చర్య: 2 వారాలలోపు అర్హులైన ఆస్తి న్యాయవాదిని సంప్రదించండి. Vakyom మీ నగరంలో ధృవీకరించబడిన నిపుణులతో మిమ్మల్ని అనుసంధానించగలదు.`,
   "bn-IN": `আপনার পরিস্থিতির উপর ভিত্তি করে, আপনার কী করা উচিত তা এখানে:
 
-**তাৎক্ষণিক পদক্ষেপ (৭ দিনের মধ্যে)**
-• নোটিশ উপেক্ষা করবেন না — বেশিরভাগ ক্ষেত্রে সাড়া দেওয়া আইনগতভাবে প্রয়োজনীয়
-• নোটিশটি সাবধানে পড়ুন এবং প্রেরক, আইনি দাবি এবং জবাব দেওয়ার সময়সীমা চিহ্নিত করুন
+তাৎক্ষণিক পদক্ষেপ, ৭ দিনের মধ্যে: নোটিশ উপেক্ষা করবেন না, বেশিরভাগ ক্ষেত্রে সাড়া দেওয়া আইনগতভাবে প্রয়োজনীয়। নোটিশটি সাবধানে পড়ুন এবং প্রেরক, আইনি দাবি এবং জবাব দেওয়ার সময়সীমা চিহ্নিত করুন।
 
-**৩০ দিনের মধ্যে**
-• সমস্ত সম্পত্তি-সংক্রান্ত নথি সংগ্রহ করুন: শিরোনাম দলিল, বিক্রয় চুক্তি, কর রসিদ
-• আইনি প্রভাব বুঝতে একজন সম্পত্তি আইনজীবীর সাথে পরামর্শ করুন
+৩০ দিনের মধ্যে: সমস্ত সম্পত্তি সংক্রান্ত নথি সংগ্রহ করুন। আইনি প্রভাব বুঝতে একজন সম্পত্তি আইনজীবীর সাথে পরামর্শ করুন।
 
-**প্রস্তাবিত পদক্ষেপ**
-২ সপ্তাহের মধ্যে একজন যোগ্য সম্পত্তি আইনজীবীর সাথে পরামর্শ করুন। Vakyom আপনার শহরে যাচাইকৃত বিশেষজ্ঞদের সাথে আপনাকে সংযুক্ত করতে পারে।
-
-*দাবিত্যাগ: এটি সাধারণ আইনি তথ্য, আইনি পরামর্শ নয়।*`,
+প্রস্তাবিত পদক্ষেপ: ২ সপ্তাহের মধ্যে একজন যোগ্য সম্পত্তি আইনজীবীর সাথে পরামর্শ করুন। Vakyom আপনার শহরে যাচাইকৃত বিশেষজ্ঞদের সাথে আপনাকে সংযুক্ত করতে পারে।`,
 };
 
 interface VoiceAssistantProps {
@@ -124,25 +91,115 @@ declare global {
   }
 }
 
+// ---- Google Translate TTS helper ----
+function chunkText(text: string, maxLen = 200): string[] {
+  const sentences = text.split(/(?<=[।.!?\n])/);
+  const chunks: string[] = [];
+  let current = "";
+  for (const sentence of sentences) {
+    if ((current + sentence).length > maxLen) {
+      if (current.trim()) chunks.push(current.trim());
+      current = sentence;
+    } else {
+      current += sentence;
+    }
+  }
+  if (current.trim()) chunks.push(current.trim());
+  return chunks.filter(Boolean);
+}
+
+function speakWithGoogleTTS(
+  text: string,
+  langCode: string,
+  onDone?: () => void,
+): () => void {
+  const lang = langCode.split("-")[0];
+  const chunks = chunkText(text, 200);
+  let stopped = false;
+  let currentAudio: HTMLAudioElement | null = null;
+
+  const playChunk = (index: number) => {
+    if (stopped || index >= chunks.length) {
+      onDone?.();
+      return;
+    }
+    const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(chunks[index])}&tl=${lang}&client=tw-ob`;
+    const audio = new Audio(url);
+    currentAudio = audio;
+    audio.onended = () => playChunk(index + 1);
+    audio.onerror = () => playChunk(index + 1);
+    audio.play().catch(() => playChunk(index + 1));
+  };
+
+  playChunk(0);
+
+  return () => {
+    stopped = true;
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.src = "";
+      currentAudio = null;
+    }
+  };
+}
+// ------------------------------------
+
 export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
   const [isListening, setIsListening] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showResponse, setShowResponse] = useState(false);
   const [textInput, setTextInput] = useState("");
   const [transcript, setTranscript] = useState("");
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
+  const stopSpeechRef = useRef<(() => void) | null>(null);
   const { t } = useTranslation();
 
   const langCode = t.welcome_speech_lang; // e.g. "kn-IN", "hi-IN"
   const simulatedResponse =
     SIMULATED_RESPONSE_BY_LANG[langCode] || SIMULATED_RESPONSE_BY_LANG["en-IN"];
 
+  // Auto-speak when response appears
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally only depends on showResponse
+  useEffect(() => {
+    if (showResponse && !isMuted) {
+      setIsSpeaking(true);
+      const stop = speakWithGoogleTTS(simulatedResponse, langCode, () => {
+        setIsSpeaking(false);
+      });
+      stopSpeechRef.current = stop;
+      return () => {
+        stop();
+      };
+    }
+  }, [showResponse]);
+
+  const stopCurrentSpeech = () => {
+    stopSpeechRef.current?.();
+    stopSpeechRef.current = null;
+    setIsSpeaking(false);
+  };
+
+  const toggleMute = () => {
+    if (isSpeaking) {
+      stopCurrentSpeech();
+      setIsMuted(true);
+    } else {
+      setIsMuted(false);
+      setIsSpeaking(true);
+      const stop = speakWithGoogleTTS(simulatedResponse, langCode, () => {
+        setIsSpeaking(false);
+      });
+      stopSpeechRef.current = stop;
+    }
+  };
+
   const startListening = () => {
     const SpeechRecognitionClass =
       window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognitionClass) {
-      // Fallback: simulate if browser doesn't support it
       setIsListening(true);
       setTimeout(() => {
         setIsListening(false);
@@ -192,9 +249,11 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
 
   const handleMicClick = () => {
     if (showResponse) {
+      stopCurrentSpeech();
       setShowResponse(false);
       setTranscript("");
       setTextInput("");
+      setIsMuted(false);
       return;
     }
     if (!isListening) {
@@ -249,7 +308,9 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
             <p className="text-xs text-muted-foreground mb-1 font-medium uppercase tracking-wide">
               {"You said:"}
             </p>
-            <p className="text-sm text-foreground italic">"{transcript}"</p>
+            <p className="text-sm text-foreground italic">
+              &quot;{transcript}&quot;
+            </p>
           </div>
         ) : (
           <div className="mb-8 p-4 rounded-xl bg-muted border border-border">
@@ -336,11 +397,26 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.5 }}
             >
-              <div className="flex items-center gap-2 mb-4">
-                <Scale className="w-4 h-4 text-gold" />
-                <span className="text-gold font-semibold text-sm">
-                  {t.voice_response_title}
-                </span>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Scale className="w-4 h-4 text-gold" />
+                  <span className="text-gold font-semibold text-sm">
+                    {t.voice_response_title}
+                  </span>
+                </div>
+                <button
+                  data-ocid="voice.toggle"
+                  type="button"
+                  onClick={toggleMute}
+                  className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                  title={isSpeaking ? "Mute" : "Speak"}
+                >
+                  {isSpeaking ? (
+                    <Volume2 className="w-4 h-4 text-gold" />
+                  ) : (
+                    <VolumeX className="w-4 h-4 text-gold/50" />
+                  )}
+                </button>
               </div>
               <div className="text-sm text-white/85 leading-relaxed whitespace-pre-line">
                 {simulatedResponse}

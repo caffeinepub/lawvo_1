@@ -116,6 +116,7 @@ export interface Translations {
   splash_mute: string;
   splash_unmute: string;
   splash_continue: string;
+  splash_greeting: string;
   founder_modal_message: string;
   founder_modal_start: string;
   founder_modal_close: string;
@@ -248,13 +249,14 @@ const en: Translations = {
   about_feature_citizen_desc:
     "Built to serve the common citizen, not just corporations",
   welcome_speech:
-    "Welcome to Vakyom. Our host Tarun Kumar shall guide you through the application. Kindly select any of the options to connect with our team for your legal query. Your problem is our problem, and we are diligently working with expert lawyers to resolve your matter.",
+    "Welcome {name} to Vakyom! Here your legal problems will be solved. Expert lawyers will guide you. All guidance is free for now. Choose any option to connect with our team.",
   welcome_speech_lang: "en-IN",
   splash_tagline: "वाक्यम् — The Word of Law",
   splash_speaking: "Vakyom speaking...",
   splash_mute: "Mute",
   splash_unmute: "Unmute",
   splash_continue: "Continue to Dashboard",
+  splash_greeting: "Namaste, {name}!",
   founder_modal_message: `Hi, I am Tarun Kumar, founder of Vakyom.
 
 We are in the early stage and building an AI-based platform that simplifies legal guidance for everyone.
@@ -390,13 +392,14 @@ const hi: Translations = {
   about_feature_citizen_desc:
     "केवल कॉर्पोरेट नहीं, आम नागरिक की सेवा के लिए बनाया गया",
   welcome_speech:
-    "वाक्योम में आपका सादर स्वागत है। हमारे माननीय होस्ट तरुण कुमार आपको इस एप्लीकेशन का उपयोग करने में मार्गदर्शन प्रदान करेंगे। अपनी कानूनी जिज्ञासा के लिए हमारी टीम से जुड़ने हेतु कोई भी विकल्प चुनें। आपकी समस्या हमारी समस्या है, और हम विशेषज्ञ अधिवक्ताओं के साथ आपकी समस्या के समाधान के लिए कार्यरत हैं।",
+    "वाक्योम में आपका स्वागत है, {name}! यहाँ आपकी कानूनी समस्याएं सुलझाई जाएंगी। विशेषज्ञ वकील आपका मार्गदर्शन करेंगे। अभी सभी सेवाएं निःशुल्क हैं।",
   welcome_speech_lang: "hi-IN",
   splash_tagline: "वाक्यम् — कानून का शब्द",
   splash_speaking: "वाक्योम बोल रहा है...",
   splash_mute: "म्यूट",
   splash_unmute: "अनम्यूट",
   splash_continue: "डैशबोर्ड पर जाएं",
+  splash_greeting: "नमस्ते, {name}!",
   founder_modal_message: `हाय, मैं तरुण कुमार, Vakyom का संस्थापक हूँ।
 
 हम अभी शुरुआती चरण में हैं और एक AI आधारित प्लेटफ़ॉर्म बना रहे हैं जो सभी के लिए कानूनी मार्गदर्शन को सरल बनाता है।
@@ -532,13 +535,14 @@ const kn: Translations = {
   about_feature_citizen_title: "ನಾಗರಿಕ-ಪ್ರಥಮ",
   about_feature_citizen_desc: "ಕೇವಲ ಕಾರ್ಪೊರೇಷನ್‌ಗಳಿಗಲ್ಲ, ಸಾಮಾನ್ಯ ನಾಗರಿಕರ ಸೇವೆಗಾಗಿ ನಿರ್ಮಿಸಲಾಗಿದೆ",
   welcome_speech:
-    "ವಾಕ್ಯೋಮ್‌ಗೆ ನಿಮ್ಮನ್ನು ಸ್ವಾಗತಿಸುತ್ತೇವೆ। ನಮ್ಮ ಗೌರವಾನ್ವಿತ ಆತಿಥೇಯ ತರುಣ್ ಕುಮಾರ್ ಅವರು ಅಪ್ಲಿಕೇಶನ್ ಬಳಸಲು ನಿಮಗೆ ಮಾರ್ಗದರ್ಶನ ನೀಡುತ್ತಾರೆ। ನಿಮ್ಮ ಕಾನೂನು ಪ್ರಶ್ನೆಗಾಗಿ ನಮ್ಮ ತಂಡದೊಂದಿಗೆ ಸಂಪರ್ಕ ಸಾಧಿಸಲು ಯಾವುದಾದರೂ ಆಯ್ಕೆಯನ್ನು ಆರಿಸಿ। ನಿಮ್ಮ ಸಮಸ್ಯೆಯೇ ನಮ್ಮ ಸಮಸ್ಯೆ, ಮತ್ತು ನಾವು ತಜ್ಞ ನ್ಯಾಯವಾದಿಗಳೊಂದಿಗೆ ನಿಮ್ಮ ಸಮಸ್ಯೆ ಪರಿಹರಿಸಲು ಕಾರ್ಯನಿರ್ವಹಿಸುತ್ತಿದ್ದೇವೆ।",
+    "ವಾಕ್ಯೋಮ್‌ಗೆ ನಿಮಗೆ ಸ್ವಾಗತ, {name}! ಇಲ್ಲಿ ನಿಮ್ಮ ಕಾನೂನು ಸಮಸ್ಯೆಗಳು ಪರಿಹರಿಸಲ್ಪಡುತ್ತವೆ. ತಜ್ಞ ವಕೀಲರು ನಿಮಗೆ ಮಾರ್ಗದರ್ಶನ ನೀಡುತ್ತಾರೆ. ಈಗ ಎಲ್ಲಾ ಸೇವೆಗಳು ಉಚಿತ.",
   welcome_speech_lang: "kn-IN",
   splash_tagline: "ವಾಕ್ಯಂ — ಕಾನೂನಿನ ಮಾತು",
   splash_speaking: "ವಾಕ್ಯಂ ಮಾತನಾಡುತ್ತಿದೆ...",
   splash_mute: "ಮ್ಯೂಟ್",
   splash_unmute: "ಅನ್‌ಮ್ಯೂಟ್",
   splash_continue: "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ಗೆ ಮುಂದುವರಿಯಿರಿ",
+  splash_greeting: "ನಮಸ್ತೆ, {name}!",
   founder_modal_message: `ಹಾಯ್, ನಾನು ತರುಣ್ ಕುಮಾರ್, Vakyom ಸಂಸ್ಥಾಪಕನು.
 
 ನಾವು ಈಗ ಆರಂಭಿಕ ಹಂತದಲ್ಲಿದ್ದೇವೆ ಮತ್ತು ಎಲ್ಲರಿಗೂ ಕಾನೂನು ಮಾರ್ಗದರ್ಶನವನ್ನು ಸರಳಗೊಳಿಸುವ AI ಆಧಾರಿತ ವೇದಿಕೆಯನ್ನು ನಿರ್ಮಿಸುತ್ತಿದ್ದೇವೆ.
@@ -681,13 +685,14 @@ const ta: Translations = {
   about_feature_citizen_desc:
     "நிறுவனங்களுக்கு மட்டுமல்ல, சாதாரண குடிமகனுக்காக கட்டமைக்கப்பட்டது",
   welcome_speech:
-    "வாக்யோமிற்கு உங்களை வரவேற்கிறோம். எங்கள் மதிப்பிற்குரிய தொகுப்பாளர் தருண் குமார் இந்த பயன்பாட்டை பயன்படுத்த உங்களுக்கு வழிகாட்டுவார். உங்கள் சட்ட விசாரணைக்காக எங்கள் குழுவுடன் தொடர்பு கொள்ள ஏதேனும் ஒரு விருப்பத்தேர்வை தேர்ந்தெடுக்கவும். உங்கள் பிரச்சனை எங்கள் பிரச்சனை, மேலும் நாங்கள் உங்கள் பிரச்சனையை தீர்க்க நிபுணர் வழக்கறிஞர்களுடன் பணிபுரிகிறோம்.",
+    "வாக்யம்-க்கு வரவேற்கிறோம், {name}! இங்கே உங்கள் சட்ட சிக்கல்கள் தீர்க்கப்படும். நிபுணத்துவம் வாய்ந்த வழக்கறிஞர்கள் உங்களுக்கு வழிகாட்டுவார்கள். இப்போது அனைத்து சேவைகளும் இலவசம்.",
   welcome_speech_lang: "ta-IN",
   splash_tagline: "வாக்யம் — சட்டத்தின் வார்த்தை",
   splash_speaking: "வாக்யம் பேசுகிறது...",
   splash_mute: "முடக்கு",
   splash_unmute: "முடக்கம் நீக்கு",
   splash_continue: "டாஷ்போர்டுக்கு தொடரவும்",
+  splash_greeting: "வணக்கம், {name}!",
   founder_modal_message: `வணக்கம், நான் தருண் குமார், Vakyom நிறுவனர்.
 
 நாங்கள் தற்போது ஆரம்ப நிலையில் உள்ளோம் மற்றும் அனைவருக்கும் சட்ட வழிகாட்டுதலை எளிமையாக்கும் AI அடிப்படையிலான தளத்தை உருவாக்கி வருகிறோம்.
@@ -827,13 +832,14 @@ const te: Translations = {
   about_feature_citizen_desc:
     "కార్పొరేషన్లకు మాత్రమే కాదు, సాధారణ పౌరుడికి సేవ చేయడానికి నిర్మించబడింది",
   welcome_speech:
-    "వాక్యోమ్‌కు స్వాగతం. మా గౌరవనీయ హోస్ట్ తరుణ్ కుమార్ మీకు ఈ అప్లికేషన్ ఉపయోగించడానికి మార్గనిర్దేశం చేస్తారు. మీ న్యాయపరమైన అభ్యర్థన కోసం మా బృందంతో అనుసంధానించుకోవడానికి ఏదైనా ఒక ఎంపికను ఎంచుకోండి. మీ సమస్య మా సమస్య, మరియు మేము మీ సమస్యను పరిష్కరించడానికి నిపుణ న్యాయవాదులతో కలిసి పనిచేస్తున్నాము.",
+    "వాక్యోమ్‌కు స్వాగతం, {name}! ఇక్కడ మీ న్యాయ సమస్యలు పరిష్కరించబడతాయి. నిపుణ న్యాయవాదులు మీకు మార్గనిర్దేశం చేస్తారు. ఇప్పుడు అన్ని సేవలు ఉచితం.",
   welcome_speech_lang: "te-IN",
   splash_tagline: "వాక్యం — చట్టం యొక్క మాట",
   splash_speaking: "వాక్యం మాట్లాడుతోంది...",
   splash_mute: "మ్యూట్",
   splash_unmute: "అన్‌మ్యూట్",
   splash_continue: "డాష్‌బోర్డ్‌కు కొనసాగండి",
+  splash_greeting: "నమస్కారం, {name}!",
   founder_modal_message: `హాయ్, నేను తరుణ్ కుమార్, Vakyom స్థాపకుడు.
 
 మేము ప్రస్తుతం ప్రారంభ దశలో ఉన్నాము మరియు అందరికీ చట్ట సంబంధ మార్గదర్శకాన్ని సులభతరం చేసే AI ఆధారిత ప్లాట్‌ఫారమ్‌ను నిర్మిస్తున్నాము.
@@ -971,13 +977,14 @@ const bn: Translations = {
   about_feature_citizen_title: "নাগরিক-প্রথম",
   about_feature_citizen_desc: "শুধু কর্পোরেশন নয়, সাধারণ নাগরিকের সেবায় তৈরি",
   welcome_speech:
-    "ভ্যাকয়োমে আপনাকে স্বাগতম। আমাদের মাননীয় হোস্ট তরুণ কুমার আপনাকে এই অ্যাপ্লিকেশনটি ব্যবহার করতে গাইড করবেন। আপনার আইনি প্রশ্নের জন্য আমাদের দলের সাথে সংযোগ করতে যেকোনো বিকল্প বেছে নিন। আপনার সমস্যাই আমাদের সমস্যা, এবং আমরা আপনার সমস্যা সমাধানের জন্য বিশেষজ্ঞ আইনজীবীদের সাথে কাজ করছি।",
+    "ভাক্যোম-এ আপনাকে স্বাগতম, {name}! এখানে আপনার আইনি সমস্যা সমাধান হবে। বিশেষজ্ঞ আইনজীবীরা আপনাকে গাইড করবেন। এখন সব সেবা বিনামূল্যে।",
   welcome_speech_lang: "bn-IN",
   splash_tagline: "ভাক্যম — আইনের কথা",
   splash_speaking: "ভাক্যম কথা বলছে...",
   splash_mute: "মিউট",
   splash_unmute: "আনমিউট",
   splash_continue: "ড্যাশবোর্ডে যান",
+  splash_greeting: "নমস্কার, {name}!",
   founder_modal_message: `হ্যালো, আমি তরুণ কুমার, Vakyom-এর প্রতিষ্ঠাতা।
 
 আমরা বর্তমানে প্রাথমিক পর্যায়ে আছি এবং সবার জন্য আইনি সহায়তাকে সহজ করার জন্য একটি AI-ভিত্তিক প্ল্যাটফর্ম তৈরি করছি।

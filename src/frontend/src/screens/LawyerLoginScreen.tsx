@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/select";
 import { useActor } from "@/hooks/useActor";
 import { motion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 interface LawyerLoginScreenProps {
   onSuccess: () => void;
@@ -28,33 +28,16 @@ export function LawyerLoginScreen({
   onSuccess,
   onBack,
 }: LawyerLoginScreenProps) {
-  const { actor, isFetching } = useActor();
-  const [name, setName] = useState("");
+  const { actor } = useActor();
+  const savedName = localStorage.getItem("vakyom_lawyer_name") || "";
+  const [name, setName] = useState(savedName);
   const [phone, setPhone] = useState("");
   const [barNumber, setBarNumber] = useState("");
   const [specialization, setSpecialization] = useState("");
   const [location, setLocation] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isChecking, setIsChecking] = useState(true);
   const [submitError, setSubmitError] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const checkedRef = useRef(false);
-
-  useEffect(() => {
-    if (!actor || isFetching || checkedRef.current) return;
-    checkedRef.current = true;
-    actor
-      .getLawyerProfile()
-      .then((profile) => {
-        if (profile) {
-          localStorage.setItem("vakyom_lawyer_name", profile.name);
-          localStorage.setItem("vakyom_role", "lawyer");
-          onSuccess();
-        }
-      })
-      .catch(console.error)
-      .finally(() => setIsChecking(false));
-  }, [actor, isFetching, onSuccess]);
 
   const validate = () => {
     const e: Record<string, string> = {};
@@ -112,20 +95,6 @@ export function LawyerLoginScreen({
     transition: "border-color 0.2s, box-shadow 0.2s",
   });
 
-  if (isChecking) {
-    return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ background: "#0a0f1e" }}
-      >
-        <div className="flex flex-col items-center gap-4">
-          <VakyomLogo size={56} />
-          <p className="text-white/60 text-sm">Checking profile…</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
@@ -178,6 +147,21 @@ export function LawyerLoginScreen({
               </p>
             </div>
           </div>
+
+          {/* Welcome back banner */}
+          {savedName && (
+            <div
+              className="mb-5 px-4 py-3 rounded-xl text-sm text-center"
+              style={{
+                background: "rgba(212,175,55,0.1)",
+                border: "1px solid rgba(212,175,55,0.35)",
+                color: "rgba(212,175,55,0.9)",
+              }}
+            >
+              👋 Welcome back, <strong>{savedName}</strong>! Re-register to
+              continue.
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} noValidate>
             {(

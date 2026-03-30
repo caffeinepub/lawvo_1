@@ -182,7 +182,12 @@ function AppContent() {
 
       {screen === "admin" && <AdminScreen onLogout={handleLogout} />}
 
-      {showSplash && <WelcomeSplash onDismiss={() => setShowSplash(false)} />}
+      {showSplash && (
+        <WelcomeSplash
+          onDismiss={() => setShowSplash(false)}
+          userName={localStorage.getItem("vakyom_user_name") || ""}
+        />
+      )}
       <WhatsAppButton />
       <Toaster />
     </>
