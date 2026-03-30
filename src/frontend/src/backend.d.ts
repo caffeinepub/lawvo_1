@@ -59,6 +59,21 @@ export interface Case {
     description: string;
     assignedLawyer?: Principal;
 }
+export interface ChatbotEntry {
+    id: bigint;
+    topicKey: string;
+    icon: string;
+    title: string;
+    keywords: Array<string>;
+    intro: string;
+    whatToDo: string;
+    documents: Array<string>;
+    lawyerType: string;
+    cost: string;
+    timeRequired: string;
+    successRate: string;
+    tip: string;
+}
 export enum CaseStatus {
     Active = "Active",
     Resolved = "Resolved",
@@ -89,7 +104,9 @@ export interface backendInterface {
     deleteLawyer(principalId: Principal): Promise<boolean>;
     deleteUser(principalId: Principal): Promise<boolean>;
     getAllFeedback(): Promise<Array<Feedback>>;
+    getAllLoginRecords(): Promise<Array<LoginRecord>>;
     getCases(): Promise<Array<Case>>;
+    getChatbotEntries(): Promise<Array<ChatbotEntry>>;
     getDocuments(): Promise<Array<UploadedDocument>>;
     getGuidanceHistory(): Promise<Array<GuidanceHistory>>;
     getLawyerCases(): Promise<Array<Case>>;
@@ -102,11 +119,31 @@ export interface backendInterface {
     listAllLawyers(): Promise<Array<LawyerProfile>>;
     listAllUsersAdmin(): Promise<Array<UserProfile>>;
     registerLawyer(name: string, phone: string, barNumber: string, specialization: string, location: string): Promise<boolean>;
+    registerLawyerLogin(name: string, phone: string): Promise<boolean>;
     registerOrUpdateUser(name: string, phone: string): Promise<boolean>;
+    resetChatbotEntries(): Promise<boolean>;
     setUserLanguage(lang: Language): Promise<void>;
     submitFeedback(rating: bigint, comment: string): Promise<boolean>;
     updateCaseStatus(arg0: {
         caseId: bigint;
         newStatus: CaseStatus;
     }): Promise<boolean>;
+    updateChatbotEntry(
+        id: bigint,
+        intro: string,
+        whatToDo: string,
+        documents: Array<string>,
+        lawyerType: string,
+        cost: string,
+        timeRequired: string,
+        successRate: string,
+        tip: string
+    ): Promise<boolean>;
+}
+export interface LoginRecord {
+    name: string;
+    phone: string;
+    role: string;
+    timestamp: Time;
+    principalId: Principal;
 }

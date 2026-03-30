@@ -90,6 +90,22 @@ actor {
     principalId : Principal;
   };
 
+  type ChatbotEntry = {
+    id : Nat;
+    topicKey : Text;
+    icon : Text;
+    title : Text;
+    keywords : [Text];
+    intro : Text;
+    whatToDo : Text;
+    documents : [Text];
+    lawyerType : Text;
+    cost : Text;
+    timeRequired : Text;
+    successRate : Text;
+    tip : Text;
+  };
+
   module Case {
     public func compare(case1 : Case, case2 : Case) : Order.Order {
       Nat.compare(case1.id, case2.id);
@@ -136,6 +152,181 @@ actor {
   let feedbacks = Map.empty<Principal, Feedback>();
   var loginHistory : [LoginRecord] = [];
   var nextCaseId = 1;
+
+  // Chatbot entries storage - initialized with defaults
+  var chatbotEntries : [ChatbotEntry] = [];
+
+  func getDefaultEntries() : [ChatbotEntry] {
+    [
+      {
+        id = 1;
+        topicKey = "land_dispute";
+        icon = "🏞️";
+        title = "Land Dispute / Ownership";
+        keywords = ["land", "property", "ownership", "dispute", "plot", "deed", "title", "encumbrance"];
+        intro = "This usually happens when two people claim the same land or ownership is unclear. This is very common in India.";
+        whatToDo = "Start by checking your property documents and then file a case in the civil court for ownership declaration.";
+        documents = ["Sale deed / Title deed", "Encumbrance certificate", "Property tax receipts", "Any agreement papers"];
+        lawyerType = "Civil / Property Lawyer";
+        cost = "₹20,000 – ₹2,00,000+ (depends on complexity & city)";
+        timeRequired = "2–10 years (property cases are slow in India)";
+        successRate = "Good if your documents are clear and registered";
+        tip = "Always verify land records before buying to avoid future disputes.";
+      },
+      {
+        id = 2;
+        topicKey = "fir_police";
+        icon = "👮";
+        title = "Police Not Filing FIR";
+        keywords = ["fir", "police", "complaint", "station", "report", "filing", "refuse", "refused"];
+        intro = "If police refuse to file your FIR, it is your legal right to escalate. You are not stuck.";
+        whatToDo = "Go to the Superintendent of Police (SP), or file a complaint before the Magistrate under Section 156(3) CrPC.";
+        documents = ["Written complaint", "Proof (photos, messages, etc.)", "ID proof"];
+        lawyerType = "Criminal Lawyer";
+        cost = "₹5,000 – ₹50,000";
+        timeRequired = "Few days to a few weeks";
+        successRate = "Very high (law supports you strongly here)";
+        tip = "You can also file an FIR online in many states via the state police portal.";
+      },
+      {
+        id = 3;
+        topicKey = "bail";
+        icon = "⚖️";
+        title = "Bail Process";
+        keywords = ["bail", "custody", "arrest", "arrested", "jail", "release", "interim", "anticipatory"];
+        intro = "Bail means temporary release from custody. It is not freedom from the case.";
+        whatToDo = "Hire a criminal lawyer immediately and apply for bail in the nearest court.";
+        documents = ["FIR copy", "ID proof", "Surety documents"];
+        lawyerType = "Criminal Lawyer";
+        cost = "₹10,000 – ₹1,00,000";
+        timeRequired = "1 day to a few weeks";
+        successRate = "High for minor offences; depends on crime severity";
+        tip = "Cooperating with the investigation increases your chances of getting bail.";
+      },
+      {
+        id = 4;
+        topicKey = "divorce";
+        icon = "👩‍⚖️";
+        title = "Divorce Procedure";
+        keywords = ["divorce", "separation", "marriage", "wife", "husband", "mutual", "contested", "family court", "alimony"];
+        intro = "Divorce can be mutual (faster) or contested (longer). Mutual divorce saves time and reduces stress.";
+        whatToDo = "File a divorce petition in the family court. Hiring a family lawyer is strongly recommended.";
+        documents = ["Marriage certificate", "Address proof", "Evidence (if contested)", "Income details"];
+        lawyerType = "Family Lawyer";
+        cost = "₹20,000 – ₹2,00,000";
+        timeRequired = "Mutual: 6 months–1 year | Contested: 2–5 years";
+        successRate = "Very high if legally valid grounds exist";
+        tip = "Mutual divorce is always smoother, cheaper, and less emotionally draining.";
+      },
+      {
+        id = 5;
+        topicKey = "domestic_violence";
+        icon = "🛡️";
+        title = "Domestic Violence";
+        keywords = ["domestic", "violence", "abuse", "harassment", "husband", "wife", "beating", "threat", "dowry"];
+        intro = "You are legally protected. Physical, emotional, and financial abuse are all punishable under Indian law.";
+        whatToDo = "File a complaint under the Protection of Women from Domestic Violence Act or approach the nearest police women's cell.";
+        documents = ["Medical reports (if any)", "Messages / evidence", "Witness details"];
+        lawyerType = "Family / Criminal Lawyer";
+        cost = "₹10,000 – ₹1,00,000";
+        timeRequired = "Immediate protection orders are possible";
+        successRate = "High if evidence exists";
+        tip = "You can get protection orders, residence rights, and maintenance through the court.";
+      },
+      {
+        id = 6;
+        topicKey = "salary";
+        icon = "💼";
+        title = "Salary Not Paid";
+        keywords = ["salary", "wages", "payment", "employer", "company", "job", "work", "labour", "fired", "terminated"];
+        intro = "Employers cannot legally withhold your salary. You have strong rights under Indian labour law.";
+        whatToDo = "File a complaint with the Labour Commissioner or approach the Labour Court.";
+        documents = ["Offer letter", "Salary slips", "Bank statements"];
+        lawyerType = "Labour Lawyer";
+        cost = "₹5,000 – ₹50,000";
+        timeRequired = "2–6 months";
+        successRate = "Very high";
+        tip = "Always keep all employment documents safely. Digital copies are equally valid.";
+      },
+      {
+        id = 7;
+        topicKey = "cheque_bounce";
+        icon = "🏦";
+        title = "Cheque Bounce";
+        keywords = ["cheque", "check", "bounce", "dishonour", "bank", "payment", "neft", "rtgs", "loan"];
+        intro = "A bounced cheque is a criminal offence under Section 138 of the Negotiable Instruments Act.";
+        whatToDo = "Send a legal notice to the defaulter within 30 days of receiving the bank memo, then file a case.";
+        documents = ["Bounced cheque", "Bank memo (return memo)", "Legal notice copy"];
+        lawyerType = "Criminal / Civil Lawyer";
+        cost = "₹10,000 – ₹1,00,000";
+        timeRequired = "6 months – 2 years";
+        successRate = "High if all documents are in order";
+        tip = "Always keep proof of every financial transaction you make.";
+      },
+      {
+        id = 8;
+        topicKey = "consumer";
+        icon = "🛍️";
+        title = "Consumer / Defective Product";
+        keywords = ["consumer", "product", "defective", "refund", "company", "service", "fraud", "cheated", "complaint", "amazon", "flipkart"];
+        intro = "If you received a bad product or poor service, you can claim a full refund or compensation from the company.";
+        whatToDo = "File a complaint in consumer court. You can also file online at edaakhil.nic.in.";
+        documents = ["Bill / Invoice", "Warranty card", "Complaint proof (emails, photos)"];
+        lawyerType = "Consumer Lawyer (optional for small claims)";
+        cost = "₹1,000 – ₹20,000";
+        timeRequired = "3–12 months";
+        successRate = "High";
+        tip = "For small claims (below ₹50 lakh), you do not need a lawyer in consumer court.";
+      },
+      {
+        id = 9;
+        topicKey = "cyber_fraud";
+        icon = "🌐";
+        title = "Online Fraud / Cyber Crime";
+        keywords = ["cyber", "online", "fraud", "scam", "hack", "otp", "upi", "phishing", "money", "stolen", "internet"];
+        intro = "If money was stolen online, act FAST. Time is critical for recovery.";
+        whatToDo = "Immediately call the cyber helpline 1930, then report online at cybercrime.gov.in.";
+        documents = ["Transaction details", "Screenshots of fraud", "Bank account information"];
+        lawyerType = "Cyber Lawyer (optional)";
+        cost = "Mostly free to file a complaint";
+        timeRequired = "Immediate action needed";
+        successRate = "Medium (depends heavily on how quickly you report)";
+        tip = "Report within hours of the fraud for the best chance of recovering your money.";
+      },
+      {
+        id = 10;
+        topicKey = "builder_rera";
+        icon = "🏠";
+        title = "Builder Not Giving Possession";
+        keywords = ["builder", "possession", "flat", "apartment", "rera", "construction", "delay", "project", "housing", "developer"];
+        intro = "Builder delays are common in India, but the law strongly protects buyers under RERA.";
+        whatToDo = "File a complaint in the RERA authority of your state or approach the consumer court.";
+        documents = ["Sale agreement", "Payment receipts", "Builder communication (emails/letters)"];
+        lawyerType = "Property Lawyer";
+        cost = "₹10,000 – ₹1,00,000";
+        timeRequired = "6 months – 3 years";
+        successRate = "High in RERA (faster than civil court)";
+        tip = "RERA is specifically designed for such disputes and is much faster than civil courts.";
+      },
+      {
+        id = 11;
+        topicKey = "fundamental_rights";
+        icon = "⚖️";
+        title = "Rights Violation by Authority";
+        keywords = ["rights", "fundamental", "authority", "government", "violation", "police", "constitutional", "writ", "high court", "supreme court"];
+        intro = "If your basic constitutional rights are violated by any authority, you can directly approach the High Court or Supreme Court.";
+        whatToDo = "File a writ petition in the High Court (Article 226) or Supreme Court (Article 32) of India.";
+        documents = ["Proof of rights violation", "Identity proof", "Supporting evidence"];
+        lawyerType = "Constitutional Lawyer";
+        cost = "₹20,000 – ₹2,00,000+";
+        timeRequired = "A few weeks to several months";
+        successRate = "Depends on strength of evidence and case";
+        tip = "Courts take rights violations very seriously. Document everything carefully.";
+      },
+    ];
+  };
+
+
 
   // Persistent lawyer profiles
   var lawyerProfiles : [Lawyer] = [
@@ -471,5 +662,47 @@ actor {
 
   public query ({ caller }) func getAllFeedback() : async [Feedback] {
     feedbacks.values().toArray();
+  };
+
+  // CHATBOT ENTRIES
+
+  public query ({ caller }) func getChatbotEntries() : async [ChatbotEntry] {
+    if (chatbotEntries.size() == 0) {
+      getDefaultEntries()
+    } else {
+      chatbotEntries
+    }
+  };
+
+  public shared ({ caller }) func updateChatbotEntry(
+    id : Nat,
+    intro : Text,
+    whatToDo : Text,
+    documents : [Text],
+    lawyerType : Text,
+    cost : Text,
+    timeRequired : Text,
+    successRate : Text,
+    tip : Text
+  ) : async Bool {
+    if (chatbotEntries.size() == 0) {
+      chatbotEntries := getDefaultEntries();
+    };
+    var found = false;
+    chatbotEntries := Array.tabulate<ChatbotEntry>(chatbotEntries.size(), func(i) {
+      let entry = chatbotEntries[i];
+      if (entry.id == id) {
+        found := true;
+        { entry with intro; whatToDo; documents; lawyerType; cost; timeRequired; successRate; tip }
+      } else {
+        entry
+      }
+    });
+    found
+  };
+
+  public shared ({ caller }) func resetChatbotEntries() : async Bool {
+    chatbotEntries := getDefaultEntries();
+    true
   };
 };

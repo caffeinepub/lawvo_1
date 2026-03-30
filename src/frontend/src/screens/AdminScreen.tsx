@@ -1,5 +1,13 @@
 import { VakyomLogo } from "@/components/VakyomLogo";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -9,15 +17,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 import { useActor } from "@/hooks/useActor";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  Bot,
   Clock,
   Eye,
   EyeOff,
   Loader2,
   LogOut,
   MessageSquare,
+  Pencil,
+  RotateCcw,
   Scale,
   Shield,
   Star,
@@ -27,6 +39,7 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { CaseStatus } from "../backend.d";
+import type { ChatbotEntry } from "../backend.d";
 
 const ADMIN_PASSWORD = "Vakyom@2024";
 
@@ -289,12 +302,96 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
       year: "numeric",
     });
 
+  const [editingEntry, setEditingEntry] = useState<ChatbotEntry | null>(null);
+  const [editForm, setEditForm] = useState<{
+    intro: string;
+    whatToDo: string;
+    documents: string;
+    lawyerType: string;
+    cost: string;
+    timeRequired: string;
+    successRate: string;
+    tip: string;
+  } | null>(null);
+  const [confirmReset, setConfirmReset] = useState(false);
+
+  const { data: chatbotEntries, isLoading: chatbotLoading } = useQuery<
+    ChatbotEntry[]
+  >({
+    queryKey: ["admin-chatbot-entries"],
+    queryFn: async () => {
+      if (!actor) return [];
+      return (actor as any).getChatbotEntries();
+    },
+    enabled: !!actor && !isFetching,
+  });
+
+  const updateChatbotMutation = useMutation({
+    mutationFn: async (data: {
+      id: bigint;
+      intro: string;
+      whatToDo: string;
+      documents: string[];
+      lawyerType: string;
+      cost: string;
+      timeRequired: string;
+      successRate: string;
+      tip: string;
+    }) => {
+      if (!actor) throw new Error("No actor");
+      return (actor as any).updateChatbotEntry(
+        data.id,
+        data.intro,
+        data.whatToDo,
+        data.documents,
+        data.lawyerType,
+        data.cost,
+        data.timeRequired,
+        data.successRate,
+        data.tip,
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-chatbot-entries"] });
+      queryClient.invalidateQueries({ queryKey: ["chatbotEntries"] });
+      setEditingEntry(null);
+      setEditForm(null);
+    },
+  });
+
+  const resetChatbotMutation = useMutation({
+    mutationFn: async () => {
+      if (!actor) throw new Error("No actor");
+      return (actor as any).resetChatbotEntries();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-chatbot-entries"] });
+      queryClient.invalidateQueries({ queryKey: ["chatbotEntries"] });
+      setConfirmReset(false);
+    },
+  });
+
+  const openEdit = (entry: ChatbotEntry) => {
+    setEditingEntry(entry);
+    setEditForm({
+      intro: entry.intro,
+      whatToDo: entry.whatToDo,
+      documents: entry.documents.join(", "),
+      lawyerType: entry.lawyerType,
+      cost: entry.cost,
+      timeRequired: entry.timeRequired,
+      successRate: entry.successRate,
+      tip: entry.tip,
+    });
+  };
+
   const TABS = [
     { id: "users", label: "Users", icon: Users },
     { id: "lawyers", label: "Lawyers", icon: Scale },
     { id: "feedback", label: "Feedback", icon: MessageSquare },
     { id: "cases", label: "Cases", icon: Shield },
     { id: "logins", label: "Login History", icon: Clock },
+    { id: "chatbot", label: "Chatbot", icon: Bot },
   ];
 
   return (
@@ -1435,6 +1532,559 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
                   ))}
                 </div>
               )}
+            </motion.div>
+          )}
+
+          {activeTab === "chatbot" && (
+            <motion.div
+              key="chatbot"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: "1.5rem",
+                  flexWrap: "wrap",
+                  gap: "0.75rem",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                  }}
+                >
+                  <Bot size={20} style={{ color: "rgba(212,175,55,0.9)" }} />
+                  <h2
+                    style={{
+                      color: "rgba(212,175,55,0.9)",
+                      fontSize: "1.1rem",
+                      fontWeight: 700,
+                      margin: 0,
+                    }}
+                  >
+                    Chatbot Responses
+                  </h2>
+                  {chatbotEntries && (
+                    <span
+                      style={{
+                        background: "rgba(212,175,55,0.15)",
+                        color: "rgba(212,175,55,0.9)",
+                        borderRadius: "999px",
+                        padding: "0.15rem 0.7rem",
+                        fontSize: "0.78rem",
+                        fontWeight: 600,
+                      }}
+                    >
+                      {chatbotEntries.length} topics
+                    </span>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  data-ocid="admin_panel.chatbot.reset.button"
+                  onClick={() => setConfirmReset(true)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.4rem",
+                    background: "rgba(239,68,68,0.1)",
+                    border: "1px solid rgba(239,68,68,0.3)",
+                    color: "rgba(252,165,165,0.8)",
+                    borderRadius: "8px",
+                    padding: "0.45rem 0.9rem",
+                    fontSize: "0.8rem",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  <RotateCcw size={14} /> Reset to Defaults
+                </button>
+              </div>
+
+              {chatbotLoading ? (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.75rem",
+                  }}
+                >
+                  {[1, 2, 3].map((i) => (
+                    <Skeleton
+                      key={i}
+                      style={{
+                        height: "80px",
+                        borderRadius: "12px",
+                        background: "rgba(255,255,255,0.06)",
+                      }}
+                    />
+                  ))}
+                </div>
+              ) : !chatbotEntries || chatbotEntries.length === 0 ? (
+                <div
+                  data-ocid="admin_panel.chatbot.empty_state"
+                  style={{
+                    textAlign: "center",
+                    padding: "3rem 1rem",
+                    color: "rgba(255,255,255,0.4)",
+                    background: "rgba(255,255,255,0.03)",
+                    borderRadius: "16px",
+                    border: "1px dashed rgba(212,175,55,0.2)",
+                  }}
+                >
+                  <Bot
+                    size={40}
+                    style={{ margin: "0 auto 1rem", opacity: 0.3 }}
+                  />
+                  <p>No chatbot entries found</p>
+                </div>
+              ) : (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.75rem",
+                  }}
+                >
+                  {chatbotEntries.map((entry, i) => (
+                    <div
+                      key={entry.topicKey}
+                      data-ocid={`admin_panel.chatbot.item.${i + 1}`}
+                      style={{
+                        background: "rgba(255,255,255,0.04)",
+                        border: "1px solid rgba(212,175,55,0.15)",
+                        borderRadius: "12px",
+                        padding: "1rem 1.25rem",
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: "1rem",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: "1.8rem",
+                          flexShrink: 0,
+                          lineHeight: 1,
+                        }}
+                      >
+                        {entry.icon}
+                      </span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.6rem",
+                            flexWrap: "wrap",
+                            marginBottom: "0.4rem",
+                          }}
+                        >
+                          <span
+                            style={{
+                              color: "rgba(212,175,55,0.95)",
+                              fontWeight: 700,
+                              fontSize: "0.95rem",
+                            }}
+                          >
+                            {entry.title}
+                          </span>
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            gap: "0.3rem",
+                          }}
+                        >
+                          {entry.keywords.map((kw) => (
+                            <span
+                              key={kw}
+                              style={{
+                                background: "rgba(212,175,55,0.1)",
+                                border: "1px solid rgba(212,175,55,0.2)",
+                                color: "rgba(212,175,55,0.7)",
+                                borderRadius: "9999px",
+                                padding: "0.1rem 0.55rem",
+                                fontSize: "0.72rem",
+                              }}
+                            >
+                              {kw}
+                            </span>
+                          ))}
+                        </div>
+                        <p
+                          style={{
+                            color: "rgba(255,255,255,0.5)",
+                            fontSize: "0.8rem",
+                            marginTop: "0.35rem",
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                          }}
+                        >
+                          {entry.intro}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        data-ocid={`admin_panel.chatbot.edit_button.${i + 1}`}
+                        onClick={() => openEdit(entry)}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.35rem",
+                          background: "rgba(212,175,55,0.1)",
+                          border: "1px solid rgba(212,175,55,0.25)",
+                          color: "rgba(212,175,55,0.8)",
+                          borderRadius: "8px",
+                          padding: "0.4rem 0.75rem",
+                          fontSize: "0.8rem",
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          flexShrink: 0,
+                        }}
+                      >
+                        <Pencil size={13} /> Edit
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Edit Modal */}
+              <Dialog
+                open={!!editingEntry}
+                onOpenChange={(open) => {
+                  if (!open) {
+                    setEditingEntry(null);
+                    setEditForm(null);
+                  }
+                }}
+              >
+                <DialogContent
+                  style={{
+                    background: "#0d1530",
+                    border: "1px solid rgba(212,175,55,0.3)",
+                    borderRadius: "16px",
+                    maxWidth: "560px",
+                    maxHeight: "90vh",
+                    overflowY: "auto",
+                  }}
+                >
+                  <DialogHeader>
+                    <DialogTitle
+                      style={{
+                        color: "rgba(212,175,55,0.95)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                      }}
+                    >
+                      <span>{editingEntry?.icon}</span>
+                      <span>Edit: {editingEntry?.title}</span>
+                    </DialogTitle>
+                  </DialogHeader>
+                  {editForm && editingEntry && (
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "1rem",
+                        paddingTop: "0.5rem",
+                      }}
+                    >
+                      <div
+                        style={{
+                          background: "rgba(255,255,255,0.04)",
+                          borderRadius: "10px",
+                          padding: "0.75rem 1rem",
+                        }}
+                      >
+                        <p
+                          style={{
+                            color: "rgba(255,255,255,0.4)",
+                            fontSize: "0.75rem",
+                            fontWeight: 600,
+                            marginBottom: "0.3rem",
+                          }}
+                        >
+                          Topic Key (read-only)
+                        </p>
+                        <p
+                          style={{
+                            color: "rgba(255,255,255,0.6)",
+                            fontSize: "0.85rem",
+                          }}
+                        >
+                          {editingEntry.topicKey}
+                        </p>
+                        <p
+                          style={{
+                            color: "rgba(255,255,255,0.4)",
+                            fontSize: "0.75rem",
+                            fontWeight: 600,
+                            margin: "0.5rem 0 0.3rem",
+                          }}
+                        >
+                          Keywords (read-only)
+                        </p>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            gap: "0.3rem",
+                          }}
+                        >
+                          {editingEntry.keywords.map((kw) => (
+                            <span
+                              key={kw}
+                              style={{
+                                background: "rgba(212,175,55,0.1)",
+                                border: "1px solid rgba(212,175,55,0.2)",
+                                color: "rgba(212,175,55,0.7)",
+                                borderRadius: "9999px",
+                                padding: "0.1rem 0.55rem",
+                                fontSize: "0.72rem",
+                              }}
+                            >
+                              {kw}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {[
+                        {
+                          key: "intro",
+                          label: "Intro",
+                          type: "textarea",
+                          rows: 3,
+                        },
+                        {
+                          key: "whatToDo",
+                          label: "What to Do",
+                          type: "textarea",
+                          rows: 3,
+                        },
+                        {
+                          key: "documents",
+                          label: "Documents (comma-separated)",
+                          type: "input",
+                        },
+                        {
+                          key: "lawyerType",
+                          label: "Lawyer Type",
+                          type: "input",
+                        },
+                        { key: "cost", label: "Cost", type: "input" },
+                        {
+                          key: "timeRequired",
+                          label: "Time Required",
+                          type: "input",
+                        },
+                        {
+                          key: "successRate",
+                          label: "Success Rate",
+                          type: "input",
+                        },
+                        { key: "tip", label: "Tip", type: "textarea", rows: 2 },
+                      ].map(({ key, label, type, rows }) => (
+                        <div key={key}>
+                          <p
+                            style={{
+                              color: "rgba(255,255,255,0.6)",
+                              fontSize: "0.8rem",
+                              fontWeight: 600,
+                              display: "block",
+                              margin: "0 0 0.3rem",
+                            }}
+                          >
+                            {label}
+                          </p>
+                          {type === "textarea" ? (
+                            <Textarea
+                              data-ocid={`admin_panel.chatbot.edit.${key}.textarea`}
+                              value={editForm[key as keyof typeof editForm]}
+                              onChange={(e) =>
+                                setEditForm((prev) =>
+                                  prev
+                                    ? { ...prev, [key]: e.target.value }
+                                    : null,
+                                )
+                              }
+                              rows={rows}
+                              style={{
+                                background: "rgba(255,255,255,0.05)",
+                                border: "1px solid rgba(212,175,55,0.2)",
+                                color: "white",
+                                borderRadius: "8px",
+                                fontSize: "0.85rem",
+                              }}
+                            />
+                          ) : (
+                            <Input
+                              data-ocid={`admin_panel.chatbot.edit.${key}.input`}
+                              value={editForm[key as keyof typeof editForm]}
+                              onChange={(e) =>
+                                setEditForm((prev) =>
+                                  prev
+                                    ? { ...prev, [key]: e.target.value }
+                                    : null,
+                                )
+                              }
+                              style={{
+                                background: "rgba(255,255,255,0.05)",
+                                border: "1px solid rgba(212,175,55,0.2)",
+                                color: "white",
+                                borderRadius: "8px",
+                                fontSize: "0.85rem",
+                              }}
+                            />
+                          )}
+                        </div>
+                      ))}
+
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "0.75rem",
+                          justifyContent: "flex-end",
+                          paddingTop: "0.5rem",
+                        }}
+                      >
+                        <Button
+                          data-ocid="admin_panel.chatbot.edit.cancel_button"
+                          type="button"
+                          onClick={() => {
+                            setEditingEntry(null);
+                            setEditForm(null);
+                          }}
+                          style={{
+                            background: "rgba(255,255,255,0.06)",
+                            border: "1px solid rgba(255,255,255,0.15)",
+                            color: "rgba(255,255,255,0.6)",
+                            borderRadius: "8px",
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          data-ocid="admin_panel.chatbot.edit.save_button"
+                          type="button"
+                          disabled={updateChatbotMutation.isPending}
+                          onClick={() => {
+                            if (!editForm || !editingEntry) return;
+                            updateChatbotMutation.mutate({
+                              id: editingEntry.id,
+                              intro: editForm.intro,
+                              whatToDo: editForm.whatToDo,
+                              documents: editForm.documents
+                                .split(",")
+                                .map((d) => d.trim())
+                                .filter(Boolean),
+                              lawyerType: editForm.lawyerType,
+                              cost: editForm.cost,
+                              timeRequired: editForm.timeRequired,
+                              successRate: editForm.successRate,
+                              tip: editForm.tip,
+                            });
+                          }}
+                          style={{
+                            background: "rgba(212,175,55,0.9)",
+                            color: "#0a0f1e",
+                            borderRadius: "8px",
+                            fontWeight: 700,
+                          }}
+                        >
+                          {updateChatbotMutation.isPending ? (
+                            <Loader2 size={15} className="animate-spin" />
+                          ) : null}
+                          {updateChatbotMutation.isPending
+                            ? "Saving..."
+                            : "Save Changes"}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </DialogContent>
+              </Dialog>
+
+              {/* Reset Confirm Dialog */}
+              <Dialog open={confirmReset} onOpenChange={setConfirmReset}>
+                <DialogContent
+                  style={{
+                    background: "#0d1530",
+                    border: "1px solid rgba(239,68,68,0.35)",
+                    borderRadius: "16px",
+                    maxWidth: "400px",
+                  }}
+                >
+                  <DialogHeader>
+                    <DialogTitle style={{ color: "rgba(252,165,165,0.9)" }}>
+                      Reset to Defaults?
+                    </DialogTitle>
+                  </DialogHeader>
+                  <p
+                    style={{
+                      color: "rgba(255,255,255,0.65)",
+                      fontSize: "0.9rem",
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    This will reset all chatbot responses to their original
+                    default values. This cannot be undone.
+                  </p>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "0.75rem",
+                      justifyContent: "flex-end",
+                      paddingTop: "0.5rem",
+                    }}
+                  >
+                    <Button
+                      data-ocid="admin_panel.chatbot.reset.cancel_button"
+                      type="button"
+                      onClick={() => setConfirmReset(false)}
+                      style={{
+                        background: "rgba(255,255,255,0.06)",
+                        border: "1px solid rgba(255,255,255,0.15)",
+                        color: "rgba(255,255,255,0.6)",
+                        borderRadius: "8px",
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      data-ocid="admin_panel.chatbot.reset.confirm_button"
+                      type="button"
+                      disabled={resetChatbotMutation.isPending}
+                      onClick={() => resetChatbotMutation.mutate()}
+                      style={{
+                        background: "rgba(239,68,68,0.8)",
+                        color: "white",
+                        borderRadius: "8px",
+                        fontWeight: 700,
+                      }}
+                    >
+                      {resetChatbotMutation.isPending ? (
+                        <Loader2 size={15} className="animate-spin" />
+                      ) : null}
+                      {resetChatbotMutation.isPending
+                        ? "Resetting..."
+                        : "Yes, Reset"}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </motion.div>
           )}
         </AnimatePresence>
