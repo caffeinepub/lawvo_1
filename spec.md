@@ -1,32 +1,34 @@
 # Vakyom
 
 ## Current State
-The app has a VoiceAssistant screen (Talk to Vakyom) with basic speech recognition and TTS. The AdminScreen has tabs for Users, Lawyers, Feedback, Cases, and Login History. The backend stores users, lawyers, cases, feedback, and login records.
+The Kannada chatbot (KANNADA_ENTRIES) has 11 topics with minimal keyword lists — typically 5–6 keywords each in Kannada script and basic English. The matchEntryKannada function does direct keyword match + English cross-map via KANNADA_ENGLISH_KEYWORD_MAP. There is no separate encroachment entry; land dispute currently absorbs those keywords.
 
 ## Requested Changes (Diff)
 
 ### Add
-- `ChatbotEntry` type in backend: stores id, keyword (topic key), title, keywords array (for matching), answer fields (whatToDo, documents, lawyerType, cost, time, successRate, tip), icon
-- `getChatbotEntries()` query -- returns all 10 entries
-- `updateChatbotEntry()` shared -- admin can update any entry by id
-- `resetChatbotEntries()` shared -- resets to defaults
-- VoiceAssistant screen rebuilt as a rule-based chatbot with 10 legal topics (land dispute, FIR, bail, divorce, domestic violence, salary unpaid, cheque bounce, consumer complaint, cyber fraud, builder/RERA, fundamental rights)
-- Each answer displays as a structured card: whatToDo, documents, lawyerType, cost, time, successRate, tip + disclaimer
-- Voice input via mic tap (speech recognition in selected language)
-- Voice output via Google Translate TTS with 🔊 Hear button
-- Disclaimer on every answer in selected language: "This is legal guidance, not legal advice. Please consult a qualified lawyer for your specific situation."
-- AdminScreen: new "Chatbot" tab listing all 10 Q&A entries with Edit button for each, opening an edit modal to modify the answer fields
+- Separate encroachment entry (ಅಕ್ರಮ ಕಬಳಿಕೆ) to KANNADA_ENTRIES as topic id 2 (shifting existing ids accordingly)
+- Comprehensive Kannada script keyword lists for all 12 topics (Kannada words, common phrases, script variations)
+- Expanded KANNADA_ENGLISH_KEYWORD_MAP with more English cross-match entries
 
 ### Modify
-- VoiceAssistant.tsx: replace existing screen with new rule-based chatbot UI
-- AdminScreen.tsx: add Chatbot tab
+- All 11 existing KANNADA_ENTRIES keyword arrays: expand from ~5 keywords to 15–25 keywords each, covering Kannada script terms, common phrases, and romanized Kannada (e.g. "bhoomi vivada", "jameen", "sampatti", "sambala silla", "talak", "gruha hinse")
 
 ### Remove
-- Nothing removed from existing screens
+- Nothing removed
 
 ## Implementation Plan
-1. Add ChatbotEntry type + CRUD functions to backend (main.mo)
-2. Regenerate backend bindings
-3. Rebuild VoiceAssistant.tsx with keyword matching, structured card display, TTS voice output
-4. Add Chatbot tab to AdminScreen.tsx with edit modal
-5. Validate and deploy
+1. Add encroachment entry (ಅಕ್ರಮ ಕಬಳಿಕೆ) with full content and expanded keyword list to KANNADA_ENTRIES
+2. Expand keywords for each of the 12 Kannada topics:
+   - Land dispute: ಭೂಮಿ ವಿವಾದ, ಜಮೀನಿನ ಸಮಸ್ಯೆ, ಆಸ್ತಿ ಜಗಳ, ಸ್ವಾಮ್ಯ ವಿವಾದ, bhoomi vivad, jameen vivad, sampatti vivad, property problem, land problem, land ownership...
+   - Encroachment: ಅಕ್ರಮ ಕಬಳಿಕೆ, ಅನಧಿಕೃತ ಆಕ್ರಮಣ, ಜಮೀನು ಕಬಳಿಸಿದ್ದಾರೆ, illegal possession, kabalize, land grabbed...
+   - FIR: FIR ತೆಗೆದುಕೊಳ್ಳುತ್ತಿಲ್ಲ, ದೂರು ದಾಖಲಿಸಿಲ್ಲ, ಪೊಲೀಸ್ ಸಹಾಯ, police nahi sunta, shikayat...
+   - Bail: ಜಾಮೀನು ಬೇಕು, ಬಿಡುಗಡೆ, ಜೈಲು, bail apply, jailu, custody...
+   - Divorce: ವಿಚ್ಛೇದನ ಬೇಕು, ಮದುವೆ ರದ್ದು, ಪತಿ ಪತ್ನಿ ವಿವಾದ, talak, separation, maduve raddu...
+   - Domestic violence: ಗಂಡ ಹೊಡೆಯುತ್ತಾನೆ, ಮನೆಯಲ್ಲಿ ಹೊಡೆತ, ಮಾನಸಿಕ ಕಿರುಕುಳ, DV case, husband hitting...
+   - Salary: ಸಂಬಳ ಕೊಟ್ಟಿಲ್ಲ, ವೇತನ ಬಂದಿಲ್ಲ, ಕಂಪನಿ ಪೈಸೆ ಕೊಡ್ತಿಲ್ಲ, salary nahi, payment pending...
+   - Cheque bounce: ಚೆಕ್ ವಾಪಸ್ ಬಂತು, ಚೆಕ್ ಬೌನ್ಸ್ ಆಯ್ತು, cheque dishonour, check bounce...
+   - Cyber fraud: ಆನ್‌ಲೈನ್ ವಂಚನೆ, ಹಣ ಕಳೆದು ಹೋಯಿತು, UPI fraud, cyber crime, paisa kat gaya...
+   - Consumer: ಕೆಟ್ಟ ಸಾಮಾನು, ಹಣ ವಾಪಸ್ ಬೇಕು, ವಸ್ತು ಹಾಳಾಗಿದೆ, refund, product kharab...
+   - Builder: ಮನೆ ಕೊಟ್ಟಿಲ್ಲ, ಬಿಲ್ಡರ್ ಮೋಸ, ಫ್ಲ್ಯಾಟ್ ಸಿಕ್ಕಿಲ್ಲ, RERA, flat delay...
+   - Fundamental rights: ಅಧಿಕಾರ ಉಲ್ಲಂಘನೆ, ಸರ್ಕಾರ ತಪ್ಪು ಮಾಡಿದೆ, ಮೂಲ ಹಕ್ಕು, writ petition, rights violation...
+3. Expand KANNADA_ENGLISH_KEYWORD_MAP with romanized Kannada variations (bhoomi, jameen, sambala, talak, gruha, hinse, etc.)
