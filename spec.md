@@ -1,34 +1,35 @@
 # Vakyom
 
 ## Current State
-The Kannada chatbot (KANNADA_ENTRIES) has 11 topics with minimal keyword lists — typically 5–6 keywords each in Kannada script and basic English. The matchEntryKannada function does direct keyword match + English cross-map via KANNADA_ENGLISH_KEYWORD_MAP. There is no separate encroachment entry; land dispute currently absorbs those keywords.
+The app has a multi-role login system (User, Lawyer, Admin). The backend stores:
+- `UserProfile`: name, phone, principalId
+- `LawyerProfile`: name, phone, barNumber, specialization, location, principalId
+- `LoginRecord`: name, phone, role, timestamp, principalId
+
+The admin panel has 4 tabs: Users, Lawyers, Login History, Chatbot. Users tab shows a table (name, phone, principalId, delete). Lawyers tab shows cards (name, specialization, bar, location, delete). Login History shows a table (name, phone, role, timestamp).
 
 ## Requested Changes (Diff)
 
 ### Add
-- Separate encroachment entry (ಅಕ್ರಮ ಕಬಳಿಕೆ) to KANNADA_ENTRIES as topic id 2 (shifting existing ids accordingly)
-- Comprehensive Kannada script keyword lists for all 12 topics (Kannada words, common phrases, script variations)
-- Expanded KANNADA_ENGLISH_KEYWORD_MAP with more English cross-match entries
+- A summary stats bar at the top of the admin panel showing total users, total lawyers, total logins
+- "Registration Date" column/field by capturing loginHistory timestamps per user and lawyer
+- Lawyer applicant cards enriched with all stored fields: Bar Council Number, specialization, location, phone, principalId, registration timestamp
+- User table enriched with all stored fields: name, phone, principalId, first seen date (from loginHistory)
+- A dedicated "Applicants" section or make current Users+Lawyers tabs show data in a full stacked table view with all fields
+- Export-friendly dense table layout for both users and lawyers in admin panel
 
 ### Modify
-- All 11 existing KANNADA_ENTRIES keyword arrays: expand from ~5 keywords to 15–25 keywords each, covering Kannada script terms, common phrases, and romanized Kannada (e.g. "bhoomi vivada", "jameen", "sampatti", "sambala silla", "talak", "gruha hinse")
+- Users tab: change from minimal table to a full data table showing all fields (name, phone, principalId truncated, actions)
+- Lawyers tab: change from card grid to a full table showing all fields (name, phone, bar number, specialization, location, principalId truncated, actions) so admin can see everything at a glance
+- Login History tab: ensure it shows all columns clearly (name, phone, role badge, timestamp with time, principalId)
+- Stats cards at top of admin dashboard to show accurate real-time counts
 
 ### Remove
 - Nothing removed
 
 ## Implementation Plan
-1. Add encroachment entry (ಅಕ್ರಮ ಕಬಳಿಕೆ) with full content and expanded keyword list to KANNADA_ENTRIES
-2. Expand keywords for each of the 12 Kannada topics:
-   - Land dispute: ಭೂಮಿ ವಿವಾದ, ಜಮೀನಿನ ಸಮಸ್ಯೆ, ಆಸ್ತಿ ಜಗಳ, ಸ್ವಾಮ್ಯ ವಿವಾದ, bhoomi vivad, jameen vivad, sampatti vivad, property problem, land problem, land ownership...
-   - Encroachment: ಅಕ್ರಮ ಕಬಳಿಕೆ, ಅನಧಿಕೃತ ಆಕ್ರಮಣ, ಜಮೀನು ಕಬಳಿಸಿದ್ದಾರೆ, illegal possession, kabalize, land grabbed...
-   - FIR: FIR ತೆಗೆದುಕೊಳ್ಳುತ್ತಿಲ್ಲ, ದೂರು ದಾಖಲಿಸಿಲ್ಲ, ಪೊಲೀಸ್ ಸಹಾಯ, police nahi sunta, shikayat...
-   - Bail: ಜಾಮೀನು ಬೇಕು, ಬಿಡುಗಡೆ, ಜೈಲು, bail apply, jailu, custody...
-   - Divorce: ವಿಚ್ಛೇದನ ಬೇಕು, ಮದುವೆ ರದ್ದು, ಪತಿ ಪತ್ನಿ ವಿವಾದ, talak, separation, maduve raddu...
-   - Domestic violence: ಗಂಡ ಹೊಡೆಯುತ್ತಾನೆ, ಮನೆಯಲ್ಲಿ ಹೊಡೆತ, ಮಾನಸಿಕ ಕಿರುಕುಳ, DV case, husband hitting...
-   - Salary: ಸಂಬಳ ಕೊಟ್ಟಿಲ್ಲ, ವೇತನ ಬಂದಿಲ್ಲ, ಕಂಪನಿ ಪೈಸೆ ಕೊಡ್ತಿಲ್ಲ, salary nahi, payment pending...
-   - Cheque bounce: ಚೆಕ್ ವಾಪಸ್ ಬಂತು, ಚೆಕ್ ಬೌನ್ಸ್ ಆಯ್ತು, cheque dishonour, check bounce...
-   - Cyber fraud: ಆನ್‌ಲೈನ್ ವಂಚನೆ, ಹಣ ಕಳೆದು ಹೋಯಿತು, UPI fraud, cyber crime, paisa kat gaya...
-   - Consumer: ಕೆಟ್ಟ ಸಾಮಾನು, ಹಣ ವಾಪಸ್ ಬೇಕು, ವಸ್ತು ಹಾಳಾಗಿದೆ, refund, product kharab...
-   - Builder: ಮನೆ ಕೊಟ್ಟಿಲ್ಲ, ಬಿಲ್ಡರ್ ಮೋಸ, ಫ್ಲ್ಯಾಟ್ ಸಿಕ್ಕಿಲ್ಲ, RERA, flat delay...
-   - Fundamental rights: ಅಧಿಕಾರ ಉಲ್ಲಂಘನೆ, ಸರ್ಕಾರ ತಪ್ಪು ಮಾಡಿದೆ, ಮೂಲ ಹಕ್ಕು, writ petition, rights violation...
-3. Expand KANNADA_ENGLISH_KEYWORD_MAP with romanized Kannada variations (bhoomi, jameen, sambala, talak, gruha, hinse, etc.)
+1. Update AdminScreen.tsx Users tab to show a comprehensive table with all UserProfile fields
+2. Update AdminScreen.tsx Lawyers tab to show a comprehensive table (not cards) with all LawyerProfile fields: name, phone, barNumber, specialization, location, principalId (truncated)
+3. Ensure Login History shows all fields in a clean, readable table with role color badges
+4. Ensure the stats summary cards at the top of admin dashboard reflect actual data counts (users, lawyers, logins)
+5. Keep existing delete functionality intact

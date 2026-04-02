@@ -1579,6 +1579,40 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
 
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
+  const shouldStopRef = useRef<boolean>(false);
+
+  const splitIntoChunks = (text: string, maxLen = 180): string[] => {
+    const chunks: string[] = [];
+    let remaining = text.trim();
+    while (remaining.length > maxLen) {
+      let splitAt = remaining.lastIndexOf(". ", maxLen);
+      if (splitAt < 50) splitAt = remaining.lastIndexOf(" ", maxLen);
+      if (splitAt < 0) splitAt = maxLen;
+      chunks.push(remaining.slice(0, splitAt + 1).trim());
+      remaining = remaining.slice(splitAt + 1).trim();
+    }
+    if (remaining.length > 0) chunks.push(remaining);
+    return chunks;
+  };
+
+  const playChunks = (chunks: string[], index: number) => {
+    if (shouldStopRef.current || index >= chunks.length) {
+      if (!shouldStopRef.current) setIsSpeaking(false);
+      return;
+    }
+    const url = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${langCode}&client=tw-ob&q=${encodeURIComponent(chunks[index])}`;
+    const audio = new Audio(url);
+    currentAudioRef.current = audio;
+    audio.play().catch(() => {
+      setIsSpeaking(false);
+    });
+    audio.onended = () => {
+      if (!shouldStopRef.current) playChunks(chunks, index + 1);
+    };
+    audio.onerror = () => {
+      setIsSpeaking(false);
+    };
+  };
 
   const { data: entries = [], isLoading } = useQuery<ChatbotEntry[]>({
     queryKey: ["chatbotEntries"],
@@ -1600,6 +1634,7 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
   const activeEntries = baseEntries;
 
   const stopCurrentSpeech = () => {
+    shouldStopRef.current = true;
     if (currentAudioRef.current) {
       currentAudioRef.current.pause();
       currentAudioRef.current = null;
@@ -1609,25 +1644,54 @@ export function VoiceAssistant({ onBack }: VoiceAssistantProps) {
 
   const speakEntry = (entry: ChatbotEntry) => {
     stopCurrentSpeech();
+    shouldStopRef.current = false;
+
+    const disclaimer = DISCLAIMERS[langCode] || DISCLAIMERS["en-IN"];
     const docsList = entry.documents.join(", ");
-    const text = [
+
+    // Use language-native labels so TTS sounds natural
+    const docsLbl = isHindi
+      ? "आवश्यक दस्तावेज"
+      : isKannada
+        ? "ಅಗತ್ಯ ದಾಖಲೆಗಳು"
+        : "Documents needed";
+    const lawyerLbl = isHindi
+      ? "वकील का प्रकार"
+      : isKannada
+        ? "ವಕೀಲ ಪ್ರಕಾರ"
+        : "Lawyer type";
+    const costLbl = isHindi
+      ? "अनुमानित लागत"
+      : isKannada
+        ? "ಅಂದಾಜು ವೆಚ್ಚ"
+        : "Estimated cost";
+    const timeLbl = isHindi
+      ? "आवश्यक समय"
+      : isKannada
+        ? "ಅಗತ್ಯ ಸಮಯ"
+        : "Time required";
+    const successLbl = isHindi
+      ? "सफलता दर"
+      : isKannada
+        ? "ಯಶಸ್ಸಿನ ಪ್ರಮಾಣ"
+        : "Success rate";
+    const tipLbl = isHindi ? "सुझाव" : isKannada ? "ಸಲಹೆ" : "Tip";
+
+    const fullText = [
       entry.intro,
       entry.whatToDo,
-      `Documents needed: ${docsList}`,
-      `Lawyer type: ${entry.lawyerType}`,
-      `Estimated cost: ${entry.cost}`,
-      `Time required: ${entry.timeRequired}`,
-      `Success rate: ${entry.successRate}`,
-      `Tip: ${entry.tip}`,
-      "This is legal guidance, not legal advice. Please consult a qualified lawyer for your specific situation.",
+      `${docsLbl}: ${docsList}`,
+      `${lawyerLbl}: ${entry.lawyerType}`,
+      `${costLbl}: ${entry.cost}`,
+      `${timeLbl}: ${entry.timeRequired}`,
+      `${successLbl}: ${entry.successRate}`,
+      `${tipLbl}: ${entry.tip}`,
+      disclaimer,
     ].join(". ");
-    const url = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${langCode}&client=tw-ob&q=${encodeURIComponent(text)}`;
-    const audio = new Audio(url);
-    currentAudioRef.current = audio;
+
+    const chunks = splitIntoChunks(fullText, 180);
     setIsSpeaking(true);
-    audio.play().catch(() => setIsSpeaking(false));
-    audio.onended = () => setIsSpeaking(false);
-    audio.onerror = () => setIsSpeaking(false);
+    playChunks(chunks, 0);
   };
 
   const toggleSpeak = (entry: ChatbotEntry) => {

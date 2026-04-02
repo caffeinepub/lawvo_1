@@ -477,6 +477,77 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-6">
+        {/* Stats Summary */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: "0.75rem",
+            marginBottom: "1.25rem",
+          }}
+        >
+          {[
+            {
+              label: "Total Users",
+              value: users?.length ?? 0,
+              color: "rgba(212,175,55,0.9)",
+              bg: "rgba(212,175,55,0.1)",
+              border: "rgba(212,175,55,0.25)",
+              icon: "👤",
+            },
+            {
+              label: "Total Lawyers",
+              value: lawyers?.length ?? 0,
+              color: "#93c5fd",
+              bg: "rgba(59,130,246,0.1)",
+              border: "rgba(59,130,246,0.25)",
+              icon: "⚖️",
+            },
+            {
+              label: "Total Logins",
+              value: loginRecords?.length ?? 0,
+              color: "#86efac",
+              bg: "rgba(34,197,94,0.1)",
+              border: "rgba(34,197,94,0.25)",
+              icon: "🔐",
+            },
+          ].map((stat) => (
+            <div
+              key={stat.label}
+              style={{
+                background: stat.bg,
+                border: `1px solid ${stat.border}`,
+                borderRadius: 14,
+                padding: "1rem",
+                textAlign: "center",
+              }}
+            >
+              <div style={{ fontSize: "1.5rem", marginBottom: "0.25rem" }}>
+                {stat.icon}
+              </div>
+              <div
+                style={{
+                  fontSize: "1.6rem",
+                  fontWeight: 700,
+                  color: stat.color,
+                  lineHeight: 1,
+                }}
+              >
+                {stat.value}
+              </div>
+              <div
+                style={{
+                  fontSize: "0.72rem",
+                  color: "rgba(255,255,255,0.5)",
+                  marginTop: "0.3rem",
+                }}
+              >
+                {stat.label}
+              </div>
+            </div>
+          ))}
+        </div>
+
         {/* Tab bar */}
         <div
           style={{
@@ -869,204 +940,241 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
                   <p>No lawyers registered yet</p>
                 </div>
               ) : (
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {lawyers.map((l, i) => {
-                    const pid = l.principalId.toString();
-                    const isDeleting =
-                      deleteLawyerMutation.isPending &&
-                      deleteLawyerMutation.variables === pid;
-                    const isConfirming = confirmDeleteLawyer === pid;
-                    return (
-                      <motion.div
-                        key={pid}
-                        data-ocid={`admin_panel.lawyers.card.${i + 1}`}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: i * 0.05 }}
+                <div
+                  style={{
+                    background: "rgba(17,25,55,0.8)",
+                    border: "1px solid rgba(212,175,55,0.15)",
+                    borderRadius: 14,
+                    overflow: "hidden",
+                  }}
+                >
+                  <Table>
+                    <TableHeader>
+                      <TableRow
                         style={{
-                          background: "rgba(17,25,55,0.8)",
-                          border: "1px solid rgba(212,175,55,0.15)",
-                          borderRadius: 14,
-                          padding: "1.1rem",
-                          position: "relative",
-                          opacity: isDeleting ? 0.5 : 1,
-                          transition: "opacity 0.2s",
+                          borderBottom: "1px solid rgba(212,175,55,0.15)",
                         }}
                       >
-                        {/* Top row: name + badge + delete */}
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "flex-start",
-                            marginBottom: 8,
-                            gap: 8,
-                          }}
-                        >
-                          <h3
+                        {[
+                          "#",
+                          "Name",
+                          "Phone",
+                          "Bar Council No.",
+                          "Specialization",
+                          "Location",
+                          "Principal ID",
+                          "Actions",
+                        ].map((h) => (
+                          <TableHead
+                            key={h}
                             style={{
-                              fontWeight: 700,
-                              color: "#fff",
-                              fontSize: "0.95rem",
-                              flex: 1,
+                              color: "rgba(212,175,55,0.8)",
+                              fontWeight: 600,
+                              whiteSpace: "nowrap",
                             }}
                           >
-                            {l.name}
-                          </h3>
-                          <div
+                            {h}
+                          </TableHead>
+                        ))}
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {lawyers.map((l, i) => {
+                        const pid = l.principalId.toString();
+                        const isDeleting =
+                          deleteLawyerMutation.isPending &&
+                          deleteLawyerMutation.variables === pid;
+                        const isConfirming = confirmDeleteLawyer === pid;
+                        return (
+                          <TableRow
+                            key={pid}
+                            data-ocid={`admin_panel.lawyers.row.${i + 1}`}
                             style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 6,
+                              borderBottom: "1px solid rgba(255,255,255,0.05)",
+                              background:
+                                i % 2 === 0
+                                  ? "transparent"
+                                  : "rgba(255,255,255,0.02)",
+                              opacity: isDeleting ? 0.5 : 1,
+                              transition: "opacity 0.2s",
                             }}
                           >
-                            <Badge
-                              variant="outline"
+                            <TableCell
                               style={{
-                                fontSize: "0.7rem",
-                                color: "oklch(0.72 0.14 78)",
-                                borderColor: "rgba(212,175,55,0.4)",
+                                color: "rgba(255,255,255,0.4)",
+                                fontSize: "0.82rem",
                               }}
                             >
-                              {l.specialization}
-                            </Badge>
-                            {isDeleting ? (
-                              <div
-                                data-ocid={`admin_panel.lawyers.loading_state.${i + 1}`}
+                              {i + 1}
+                            </TableCell>
+                            <TableCell
+                              style={{
+                                fontWeight: 600,
+                                color: "#fff",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {l.name}
+                            </TableCell>
+                            <TableCell
+                              style={{
+                                color: "rgba(255,255,255,0.7)",
+                                fontFamily: "monospace",
+                                fontSize: "0.82rem",
+                              }}
+                            >
+                              {l.phone}
+                            </TableCell>
+                            <TableCell
+                              style={{
+                                color: "rgba(255,255,255,0.6)",
+                                fontSize: "0.82rem",
+                              }}
+                            >
+                              {l.barNumber}
+                            </TableCell>
+                            <TableCell>
+                              <span
                                 style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  color: "rgba(255,255,255,0.4)",
-                                }}
-                              >
-                                <Loader2 size={13} className="animate-spin" />
-                              </div>
-                            ) : isConfirming ? (
-                              <div
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 4,
-                                }}
-                              >
-                                <span
-                                  style={{
-                                    fontSize: "0.68rem",
-                                    color: "rgba(255,180,180,0.9)",
-                                    whiteSpace: "nowrap",
-                                  }}
-                                >
-                                  Delete?
-                                </span>
-                                <button
-                                  type="button"
-                                  data-ocid={`admin_panel.lawyers.confirm_button.${i + 1}`}
-                                  onClick={() =>
-                                    deleteLawyerMutation.mutate(pid)
-                                  }
-                                  style={{
-                                    background: "rgba(220,50,50,0.85)",
-                                    border: "none",
-                                    borderRadius: 5,
-                                    color: "#fff",
-                                    fontSize: "0.68rem",
-                                    fontWeight: 700,
-                                    padding: "2px 7px",
-                                    cursor: "pointer",
-                                  }}
-                                >
-                                  Yes
-                                </button>
-                                <button
-                                  type="button"
-                                  data-ocid={`admin_panel.lawyers.cancel_button.${i + 1}`}
-                                  onClick={() => setConfirmDeleteLawyer(null)}
-                                  style={{
-                                    background: "rgba(255,255,255,0.1)",
-                                    border: "none",
-                                    borderRadius: 5,
-                                    color: "rgba(255,255,255,0.6)",
-                                    fontSize: "0.68rem",
-                                    padding: "2px 7px",
-                                    cursor: "pointer",
-                                  }}
-                                >
-                                  No
-                                </button>
-                              </div>
-                            ) : (
-                              <button
-                                type="button"
-                                data-ocid={`admin_panel.lawyers.delete_button.${i + 1}`}
-                                onClick={() => setConfirmDeleteLawyer(pid)}
-                                title="Delete lawyer"
-                                style={{
-                                  background: "none",
-                                  border: "1px solid rgba(220,50,50,0.3)",
+                                  background: "rgba(212,175,55,0.12)",
+                                  color: "oklch(0.72 0.14 78)",
+                                  border: "1px solid rgba(212,175,55,0.3)",
                                   borderRadius: 6,
-                                  color: "rgba(220,50,50,0.7)",
-                                  cursor: "pointer",
-                                  padding: "4px 7px",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  transition: "all 0.15s",
-                                }}
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.background =
-                                    "rgba(220,50,50,0.15)";
-                                  e.currentTarget.style.color =
-                                    "rgba(255,80,80,1)";
-                                  e.currentTarget.style.borderColor =
-                                    "rgba(220,50,50,0.7)";
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.background = "none";
-                                  e.currentTarget.style.color =
-                                    "rgba(220,50,50,0.7)";
-                                  e.currentTarget.style.borderColor =
-                                    "rgba(220,50,50,0.3)";
+                                  padding: "2px 8px",
+                                  fontSize: "0.72rem",
+                                  fontWeight: 600,
                                 }}
                               >
-                                <Trash2 size={13} />
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 3,
-                          }}
-                        >
-                          <span
-                            style={{
-                              fontSize: "0.78rem",
-                              color: "rgba(255,255,255,0.5)",
-                            }}
-                          >
-                            📞 {l.phone}
-                          </span>
-                          <span
-                            style={{
-                              fontSize: "0.78rem",
-                              color: "rgba(255,255,255,0.5)",
-                            }}
-                          >
-                            🏛 {l.barNumber}
-                          </span>
-                          <span
-                            style={{
-                              fontSize: "0.78rem",
-                              color: "rgba(255,255,255,0.5)",
-                            }}
-                          >
-                            📍 {l.location}
-                          </span>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
+                                {l.specialization}
+                              </span>
+                            </TableCell>
+                            <TableCell
+                              style={{
+                                color: "rgba(255,255,255,0.6)",
+                                fontSize: "0.82rem",
+                              }}
+                            >
+                              {l.location}
+                            </TableCell>
+                            <TableCell
+                              style={{
+                                color: "rgba(255,255,255,0.4)",
+                                fontFamily: "monospace",
+                                fontSize: "0.7rem",
+                              }}
+                            >
+                              {pid.slice(0, 10)}…
+                            </TableCell>
+                            <TableCell>
+                              {isDeleting ? (
+                                <div
+                                  data-ocid={`admin_panel.lawyers.loading_state.${i + 1}`}
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 4,
+                                    color: "rgba(255,255,255,0.4)",
+                                    fontSize: "0.75rem",
+                                  }}
+                                >
+                                  <Loader2 size={13} className="animate-spin" />{" "}
+                                  Deleting…
+                                </div>
+                              ) : isConfirming ? (
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 4,
+                                  }}
+                                >
+                                  <span
+                                    style={{
+                                      fontSize: "0.72rem",
+                                      color: "rgba(255,180,180,0.9)",
+                                      whiteSpace: "nowrap",
+                                    }}
+                                  >
+                                    Confirm?
+                                  </span>
+                                  <button
+                                    type="button"
+                                    data-ocid={`admin_panel.lawyers.confirm_button.${i + 1}`}
+                                    onClick={() =>
+                                      deleteLawyerMutation.mutate(pid)
+                                    }
+                                    style={{
+                                      background: "rgba(220,50,50,0.85)",
+                                      border: "none",
+                                      borderRadius: 5,
+                                      color: "#fff",
+                                      fontSize: "0.7rem",
+                                      fontWeight: 700,
+                                      padding: "2px 8px",
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    Yes
+                                  </button>
+                                  <button
+                                    type="button"
+                                    data-ocid={`admin_panel.lawyers.cancel_button.${i + 1}`}
+                                    onClick={() => setConfirmDeleteLawyer(null)}
+                                    style={{
+                                      background: "rgba(255,255,255,0.1)",
+                                      border: "none",
+                                      borderRadius: 5,
+                                      color: "rgba(255,255,255,0.6)",
+                                      fontSize: "0.7rem",
+                                      padding: "2px 8px",
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    No
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  type="button"
+                                  data-ocid={`admin_panel.lawyers.delete_button.${i + 1}`}
+                                  onClick={() => setConfirmDeleteLawyer(pid)}
+                                  title="Delete lawyer"
+                                  style={{
+                                    background: "none",
+                                    border: "1px solid rgba(220,50,50,0.3)",
+                                    borderRadius: 6,
+                                    color: "rgba(220,50,50,0.7)",
+                                    cursor: "pointer",
+                                    padding: "4px 7px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    transition: "all 0.15s",
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.background =
+                                      "rgba(220,50,50,0.15)";
+                                    e.currentTarget.style.color =
+                                      "rgba(255,80,80,1)";
+                                    e.currentTarget.style.borderColor =
+                                      "rgba(220,50,50,0.7)";
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = "none";
+                                    e.currentTarget.style.color =
+                                      "rgba(220,50,50,0.7)";
+                                    e.currentTarget.style.borderColor =
+                                      "rgba(220,50,50,0.3)";
+                                  }}
+                                >
+                                  <Trash2 size={13} />
+                                </button>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
                 </div>
               )}
             </motion.div>
@@ -1432,104 +1540,161 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
               ) : (
                 <div
                   style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "0.75rem",
+                    background: "rgba(17,25,55,0.8)",
+                    border: "1px solid rgba(212,175,55,0.15)",
+                    borderRadius: 14,
+                    overflow: "hidden",
                   }}
                 >
-                  {[...loginRecords].reverse().map((lr: any, i: number) => (
-                    <div
-                      key={`${lr.phone}-${lr.timestamp}-${i}`}
-                      data-ocid={`admin_panel.logins.item.${i + 1}`}
-                      style={{
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(212,175,55,0.15)",
-                        borderRadius: "12px",
-                        padding: "1rem 1.25rem",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "1rem",
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      <div
+                  <Table>
+                    <TableHeader>
+                      <TableRow
                         style={{
-                          width: "40px",
-                          height: "40px",
-                          borderRadius: "50%",
-                          background: "rgba(212,175,55,0.15)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          flexShrink: 0,
+                          borderBottom: "1px solid rgba(212,175,55,0.15)",
                         }}
                       >
-                        <Clock
-                          size={18}
-                          style={{ color: "rgba(212,175,55,0.8)" }}
-                        />
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "0.6rem",
-                            flexWrap: "wrap",
-                          }}
-                        >
-                          <span
+                        {[
+                          "#",
+                          "Name",
+                          "Phone",
+                          "Role",
+                          "Timestamp",
+                          "Principal ID",
+                        ].map((h) => (
+                          <TableHead
+                            key={h}
                             style={{
-                              color: "rgba(212,175,55,0.95)",
-                              fontWeight: 700,
-                              fontSize: "0.95rem",
-                            }}
-                          >
-                            {lr.name}
-                          </span>
-                          <span
-                            style={{
-                              background:
-                                lr.role === "lawyer"
-                                  ? "rgba(147,51,234,0.2)"
-                                  : "rgba(59,130,246,0.2)",
-                              color:
-                                lr.role === "lawyer"
-                                  ? "rgba(196,148,255,0.9)"
-                                  : "rgba(147,197,253,0.9)",
-                              border: `1px solid ${lr.role === "lawyer" ? "rgba(147,51,234,0.4)" : "rgba(59,130,246,0.4)"}`,
-                              borderRadius: "999px",
-                              padding: "0.1rem 0.6rem",
-                              fontSize: "0.72rem",
+                              color: "rgba(212,175,55,0.8)",
                               fontWeight: 600,
-                              textTransform: "capitalize",
+                              whiteSpace: "nowrap",
                             }}
                           >
-                            {lr.role === "lawyer" ? "Lawyer" : "User"}
-                          </span>
-                        </div>
-                        <div
-                          style={{
-                            color: "rgba(255,255,255,0.55)",
-                            fontSize: "0.82rem",
-                            marginTop: "0.2rem",
-                          }}
-                        >
-                          {lr.phone}
-                        </div>
-                      </div>
-                      <div
-                        style={{
-                          color: "rgba(255,255,255,0.4)",
-                          fontSize: "0.78rem",
-                          textAlign: "right",
-                          flexShrink: 0,
-                        }}
-                      >
-                        {formatDate(lr.timestamp)}
-                      </div>
-                    </div>
-                  ))}
+                            {h}
+                          </TableHead>
+                        ))}
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {[...loginRecords].reverse().map((lr: any, i: number) => {
+                        const pid = lr.principalId
+                          ? lr.principalId.toString()
+                          : "";
+                        const ts = new Date(Number(lr.timestamp) / 1_000_000);
+                        const dateStr = ts.toLocaleDateString("en-IN", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        });
+                        const timeStr = ts.toLocaleTimeString("en-IN", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        });
+                        const roleBadge =
+                          lr.role === "lawyer"
+                            ? {
+                                bg: "rgba(34,197,94,0.15)",
+                                color: "#86efac",
+                                border: "rgba(34,197,94,0.3)",
+                                label: "Lawyer",
+                              }
+                            : lr.role === "admin"
+                              ? {
+                                  bg: "rgba(212,175,55,0.15)",
+                                  color: "oklch(0.72 0.14 78)",
+                                  border: "rgba(212,175,55,0.3)",
+                                  label: "Admin",
+                                }
+                              : {
+                                  bg: "rgba(59,130,246,0.15)",
+                                  color: "#93c5fd",
+                                  border: "rgba(59,130,246,0.3)",
+                                  label: "User",
+                                };
+                        return (
+                          <TableRow
+                            key={`${lr.phone}-${lr.timestamp}-${i}`}
+                            data-ocid={`admin_panel.logins.row.${i + 1}`}
+                            style={{
+                              borderBottom: "1px solid rgba(255,255,255,0.05)",
+                              background:
+                                i % 2 === 0
+                                  ? "transparent"
+                                  : "rgba(255,255,255,0.02)",
+                            }}
+                          >
+                            <TableCell
+                              style={{
+                                color: "rgba(255,255,255,0.4)",
+                                fontSize: "0.82rem",
+                              }}
+                            >
+                              {i + 1}
+                            </TableCell>
+                            <TableCell
+                              style={{
+                                fontWeight: 600,
+                                color: "#fff",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {lr.name || "—"}
+                            </TableCell>
+                            <TableCell
+                              style={{
+                                color: "rgba(255,255,255,0.7)",
+                                fontFamily: "monospace",
+                                fontSize: "0.82rem",
+                              }}
+                            >
+                              {lr.phone || "—"}
+                            </TableCell>
+                            <TableCell>
+                              <span
+                                style={{
+                                  background: roleBadge.bg,
+                                  color: roleBadge.color,
+                                  border: `1px solid ${roleBadge.border}`,
+                                  borderRadius: 9999,
+                                  padding: "2px 10px",
+                                  fontSize: "0.72rem",
+                                  fontWeight: 600,
+                                }}
+                              >
+                                {roleBadge.label}
+                              </span>
+                            </TableCell>
+                            <TableCell
+                              style={{
+                                color: "rgba(255,255,255,0.6)",
+                                fontSize: "0.78rem",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              <div>{dateStr}</div>
+                              <div
+                                style={{
+                                  color: "rgba(255,255,255,0.4)",
+                                  fontSize: "0.72rem",
+                                }}
+                              >
+                                {timeStr}
+                              </div>
+                            </TableCell>
+                            <TableCell
+                              style={{
+                                color: "rgba(255,255,255,0.4)",
+                                fontFamily: "monospace",
+                                fontSize: "0.7rem",
+                              }}
+                            >
+                              {pid ? `${pid.slice(0, 10)}…` : "—"}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
                 </div>
               )}
             </motion.div>
