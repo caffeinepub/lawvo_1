@@ -42,6 +42,34 @@ export const Feedback = IDL.Record({
   'rating' : IDL.Nat,
   'principalId' : IDL.Principal,
 });
+export const LoginRecord = IDL.Record({
+  'name' : IDL.Text,
+  'role' : IDL.Text,
+  'timestamp' : Time,
+  'phone' : IDL.Text,
+  'principalId' : IDL.Principal,
+});
+export const WaitlistEntry = IDL.Record({
+  'name' : IDL.Text,
+  'email' : IDL.Text,
+  'timestamp' : Time,
+  'phone' : IDL.Text,
+});
+export const ChatbotEntry = IDL.Record({
+  'id' : IDL.Nat,
+  'tip' : IDL.Text,
+  'title' : IDL.Text,
+  'documents' : IDL.Vec(IDL.Text),
+  'cost' : IDL.Text,
+  'icon' : IDL.Text,
+  'whatToDo' : IDL.Text,
+  'successRate' : IDL.Text,
+  'timeRequired' : IDL.Text,
+  'topicKey' : IDL.Text,
+  'keywords' : IDL.Vec(IDL.Text),
+  'lawyerType' : IDL.Text,
+  'intro' : IDL.Text,
+});
 export const LawyerProfile = IDL.Record({
   'name' : IDL.Text,
   'specialization' : IDL.Text,
@@ -65,13 +93,6 @@ export const UserProfile = IDL.Record({
   'phone' : IDL.Text,
   'principalId' : IDL.Principal,
 });
-export const LoginRecord = IDL.Record({
-  'name' : IDL.Text,
-  'phone' : IDL.Text,
-  'role' : IDL.Text,
-  'timestamp' : Time,
-  'principalId' : IDL.Principal,
-});
 export const Language = IDL.Variant({
   'Telugu' : IDL.Null,
   'Kannada' : IDL.Null,
@@ -93,6 +114,7 @@ export const idlService = IDL.Service({
       [IDL.Record({ 'id' : IDL.Nat })],
       [],
     ),
+  'addWaitlistEntry' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [IDL.Bool], []),
   'assignCaseToLawyer' : IDL.Func(
       [IDL.Record({ 'lawyerPrincipal' : IDL.Principal, 'caseId' : IDL.Nat })],
       [IDL.Bool],
@@ -102,13 +124,20 @@ export const idlService = IDL.Service({
   'deleteUser' : IDL.Func([IDL.Principal], [IDL.Bool], []),
   'getAllFeedback' : IDL.Func([], [IDL.Vec(Feedback)], ['query']),
   'getAllLoginRecords' : IDL.Func([], [IDL.Vec(LoginRecord)], ['query']),
+  'getAllWaitlistEntries' : IDL.Func([], [IDL.Vec(WaitlistEntry)], ['query']),
   'getCases' : IDL.Func([], [IDL.Vec(Case)], ['query']),
+  'getChatbotEntries' : IDL.Func([], [IDL.Vec(ChatbotEntry)], ['query']),
   'getDocuments' : IDL.Func([], [IDL.Vec(UploadedDocument)], ['query']),
   'getGuidanceHistory' : IDL.Func([], [IDL.Vec(GuidanceHistory)], ['query']),
   'getLawyerCases' : IDL.Func([], [IDL.Vec(Case)], ['query']),
   'getLawyerProfile' : IDL.Func([], [IDL.Opt(LawyerProfile)], ['query']),
   'getLawyerProfiles' : IDL.Func([], [IDL.Vec(Lawyer)], ['query']),
   'getMyProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+  'getMyWaitlistEntry' : IDL.Func(
+      [IDL.Text],
+      [IDL.Opt(WaitlistEntry)],
+      ['query'],
+    ),
   'getUserFeedback' : IDL.Func([], [IDL.Opt(Feedback)], ['query']),
   'getUserLanguage' : IDL.Func([], [IDL.Opt(Language)], ['query']),
   'initialize' : IDL.Func([], [], []),
@@ -121,6 +150,7 @@ export const idlService = IDL.Service({
     ),
   'registerLawyerLogin' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], []),
   'registerOrUpdateUser' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], []),
+  'resetChatbotEntries' : IDL.Func([], [IDL.Bool], []),
   'setUserLanguage' : IDL.Func([Language], [], []),
   'submitFeedback' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Bool], []),
   'updateCaseStatus' : IDL.Func(
@@ -128,7 +158,24 @@ export const idlService = IDL.Service({
       [IDL.Bool],
       [],
     ),
+  'updateChatbotEntry' : IDL.Func(
+      [
+        IDL.Nat,
+        IDL.Text,
+        IDL.Text,
+        IDL.Vec(IDL.Text),
+        IDL.Text,
+        IDL.Text,
+        IDL.Text,
+        IDL.Text,
+        IDL.Text,
+      ],
+      [IDL.Bool],
+      [],
+    ),
 });
+
+export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
   const CaseStatus = IDL.Variant({
@@ -165,6 +212,34 @@ export const idlFactory = ({ IDL }) => {
     'rating' : IDL.Nat,
     'principalId' : IDL.Principal,
   });
+  const LoginRecord = IDL.Record({
+    'name' : IDL.Text,
+    'role' : IDL.Text,
+    'timestamp' : Time,
+    'phone' : IDL.Text,
+    'principalId' : IDL.Principal,
+  });
+  const WaitlistEntry = IDL.Record({
+    'name' : IDL.Text,
+    'email' : IDL.Text,
+    'timestamp' : Time,
+    'phone' : IDL.Text,
+  });
+  const ChatbotEntry = IDL.Record({
+    'id' : IDL.Nat,
+    'tip' : IDL.Text,
+    'title' : IDL.Text,
+    'documents' : IDL.Vec(IDL.Text),
+    'cost' : IDL.Text,
+    'icon' : IDL.Text,
+    'whatToDo' : IDL.Text,
+    'successRate' : IDL.Text,
+    'timeRequired' : IDL.Text,
+    'topicKey' : IDL.Text,
+    'keywords' : IDL.Vec(IDL.Text),
+    'lawyerType' : IDL.Text,
+    'intro' : IDL.Text,
+  });
   const LawyerProfile = IDL.Record({
     'name' : IDL.Text,
     'specialization' : IDL.Text,
@@ -188,13 +263,6 @@ export const idlFactory = ({ IDL }) => {
     'phone' : IDL.Text,
     'principalId' : IDL.Principal,
   });
-  const LoginRecord = IDL.Record({
-    'name' : IDL.Text,
-    'phone' : IDL.Text,
-    'role' : IDL.Text,
-    'timestamp' : Time,
-    'principalId' : IDL.Principal,
-  });
   const Language = IDL.Variant({
     'Telugu' : IDL.Null,
     'Kannada' : IDL.Null,
@@ -216,6 +284,11 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Record({ 'id' : IDL.Nat })],
         [],
       ),
+    'addWaitlistEntry' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text],
+        [IDL.Bool],
+        [],
+      ),
     'assignCaseToLawyer' : IDL.Func(
         [IDL.Record({ 'lawyerPrincipal' : IDL.Principal, 'caseId' : IDL.Nat })],
         [IDL.Bool],
@@ -225,13 +298,20 @@ export const idlFactory = ({ IDL }) => {
     'deleteUser' : IDL.Func([IDL.Principal], [IDL.Bool], []),
     'getAllFeedback' : IDL.Func([], [IDL.Vec(Feedback)], ['query']),
     'getAllLoginRecords' : IDL.Func([], [IDL.Vec(LoginRecord)], ['query']),
+    'getAllWaitlistEntries' : IDL.Func([], [IDL.Vec(WaitlistEntry)], ['query']),
     'getCases' : IDL.Func([], [IDL.Vec(Case)], ['query']),
+    'getChatbotEntries' : IDL.Func([], [IDL.Vec(ChatbotEntry)], ['query']),
     'getDocuments' : IDL.Func([], [IDL.Vec(UploadedDocument)], ['query']),
     'getGuidanceHistory' : IDL.Func([], [IDL.Vec(GuidanceHistory)], ['query']),
     'getLawyerCases' : IDL.Func([], [IDL.Vec(Case)], ['query']),
     'getLawyerProfile' : IDL.Func([], [IDL.Opt(LawyerProfile)], ['query']),
     'getLawyerProfiles' : IDL.Func([], [IDL.Vec(Lawyer)], ['query']),
     'getMyProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+    'getMyWaitlistEntry' : IDL.Func(
+        [IDL.Text],
+        [IDL.Opt(WaitlistEntry)],
+        ['query'],
+      ),
     'getUserFeedback' : IDL.Func([], [IDL.Opt(Feedback)], ['query']),
     'getUserLanguage' : IDL.Func([], [IDL.Opt(Language)], ['query']),
     'initialize' : IDL.Func([], [], []),
@@ -244,10 +324,26 @@ export const idlFactory = ({ IDL }) => {
       ),
     'registerLawyerLogin' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], []),
     'registerOrUpdateUser' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], []),
+    'resetChatbotEntries' : IDL.Func([], [IDL.Bool], []),
     'setUserLanguage' : IDL.Func([Language], [], []),
     'submitFeedback' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Bool], []),
     'updateCaseStatus' : IDL.Func(
         [IDL.Record({ 'caseId' : IDL.Nat, 'newStatus' : CaseStatus })],
+        [IDL.Bool],
+        [],
+      ),
+    'updateChatbotEntry' : IDL.Func(
+        [
+          IDL.Nat,
+          IDL.Text,
+          IDL.Text,
+          IDL.Vec(IDL.Text),
+          IDL.Text,
+          IDL.Text,
+          IDL.Text,
+          IDL.Text,
+          IDL.Text,
+        ],
         [IDL.Bool],
         [],
       ),

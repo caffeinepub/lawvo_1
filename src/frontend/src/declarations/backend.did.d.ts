@@ -23,6 +23,21 @@ export interface Case {
 export type CaseStatus = { 'Active' : null } |
   { 'Resolved' : null } |
   { 'Pending' : null };
+export interface ChatbotEntry {
+  'id' : bigint,
+  'tip' : string,
+  'title' : string,
+  'documents' : Array<string>,
+  'cost' : string,
+  'icon' : string,
+  'whatToDo' : string,
+  'successRate' : string,
+  'timeRequired' : string,
+  'topicKey' : string,
+  'keywords' : Array<string>,
+  'lawyerType' : string,
+  'intro' : string,
+}
 export interface Feedback {
   'comment' : string,
   'timestamp' : Time,
@@ -61,9 +76,9 @@ export interface LawyerProfile {
 }
 export interface LoginRecord {
   'name' : string,
-  'phone' : string,
   'role' : string,
   'timestamp' : Time,
+  'phone' : string,
   'principalId' : Principal,
 }
 export type Time = bigint;
@@ -78,10 +93,17 @@ export interface UserProfile {
   'phone' : string,
   'principalId' : Principal,
 }
+export interface WaitlistEntry {
+  'name' : string,
+  'email' : string,
+  'timestamp' : Time,
+  'phone' : string,
+}
 export interface _SERVICE {
   'addCase' : ActorMethod<[Case], { 'id' : bigint }>,
   'addDocument' : ActorMethod<[UploadedDocument], { 'id' : bigint }>,
   'addGuidanceHistory' : ActorMethod<[GuidanceHistory], { 'id' : bigint }>,
+  'addWaitlistEntry' : ActorMethod<[string, string, string], boolean>,
   'assignCaseToLawyer' : ActorMethod<
     [{ 'lawyerPrincipal' : Principal, 'caseId' : bigint }],
     boolean
@@ -90,13 +112,16 @@ export interface _SERVICE {
   'deleteUser' : ActorMethod<[Principal], boolean>,
   'getAllFeedback' : ActorMethod<[], Array<Feedback>>,
   'getAllLoginRecords' : ActorMethod<[], Array<LoginRecord>>,
+  'getAllWaitlistEntries' : ActorMethod<[], Array<WaitlistEntry>>,
   'getCases' : ActorMethod<[], Array<Case>>,
+  'getChatbotEntries' : ActorMethod<[], Array<ChatbotEntry>>,
   'getDocuments' : ActorMethod<[], Array<UploadedDocument>>,
   'getGuidanceHistory' : ActorMethod<[], Array<GuidanceHistory>>,
   'getLawyerCases' : ActorMethod<[], Array<Case>>,
   'getLawyerProfile' : ActorMethod<[], [] | [LawyerProfile]>,
   'getLawyerProfiles' : ActorMethod<[], Array<Lawyer>>,
   'getMyProfile' : ActorMethod<[], [] | [UserProfile]>,
+  'getMyWaitlistEntry' : ActorMethod<[string], [] | [WaitlistEntry]>,
   'getUserFeedback' : ActorMethod<[], [] | [Feedback]>,
   'getUserLanguage' : ActorMethod<[], [] | [Language]>,
   'initialize' : ActorMethod<[], undefined>,
@@ -108,10 +133,25 @@ export interface _SERVICE {
   >,
   'registerLawyerLogin' : ActorMethod<[string, string], boolean>,
   'registerOrUpdateUser' : ActorMethod<[string, string], boolean>,
+  'resetChatbotEntries' : ActorMethod<[], boolean>,
   'setUserLanguage' : ActorMethod<[Language], undefined>,
   'submitFeedback' : ActorMethod<[bigint, string], boolean>,
   'updateCaseStatus' : ActorMethod<
     [{ 'caseId' : bigint, 'newStatus' : CaseStatus }],
+    boolean
+  >,
+  'updateChatbotEntry' : ActorMethod<
+    [
+      bigint,
+      string,
+      string,
+      Array<string>,
+      string,
+      string,
+      string,
+      string,
+      string,
+    ],
     boolean
   >,
 }

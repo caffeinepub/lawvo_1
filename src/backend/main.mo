@@ -7,7 +7,10 @@ import Nat "mo:core/Nat";
 import Char "mo:core/Char";
 import Order "mo:core/Order";
 import Iter "mo:core/Iter";
+import Migration "migration";
+import Int "mo:core/Int";
 
+(with migration = Migration.run)
 actor {
   type Language = {
     #English;
@@ -150,6 +153,7 @@ actor {
   let users = Map.empty<Principal, UserProfile>();
   let lawyers = Map.empty<Principal, LawyerProfile>();
   let feedbacks = Map.empty<Principal, Feedback>();
+  let waitlistEntries = Map.empty<Text, WaitlistEntry>();
   var loginHistory : [LoginRecord] = [];
   var nextCaseId = 1;
 
@@ -326,7 +330,12 @@ actor {
     ];
   };
 
-
+  type WaitlistEntry = {
+    name : Text;
+    email : Text;
+    phone : Text;
+    timestamp : Time.Time;
+  };
 
   // Persistent lawyer profiles
   var lawyerProfiles : [Lawyer] = [
@@ -518,7 +527,7 @@ actor {
       timestamp = Time.now();
       principalId = caller;
     };
-    loginHistory := Array.tabulate<LoginRecord>(loginHistory.size() + 1, func(i) { if (i < loginHistory.size()) loginHistory[i] else record });
+    loginHistory := Array.tabulate<LoginRecord>(loginHistory.size() + 1, func(i) { if (i < loginHistory.size()) { loginHistory[i] } else { record } });
 
     true;
   };
@@ -532,7 +541,7 @@ actor {
       timestamp = Time.now();
       principalId = caller;
     };
-    loginHistory := Array.tabulate<LoginRecord>(loginHistory.size() + 1, func(i) { if (i < loginHistory.size()) loginHistory[i] else record });
+    loginHistory := Array.tabulate<LoginRecord>(loginHistory.size() + 1, func(i) { if (i < loginHistory.size()) { loginHistory[i] } else { record } });
     true;
   };
 
@@ -668,10 +677,10 @@ actor {
 
   public query ({ caller }) func getChatbotEntries() : async [ChatbotEntry] {
     if (chatbotEntries.size() == 0) {
-      getDefaultEntries()
+      getDefaultEntries();
     } else {
-      chatbotEntries
-    }
+      chatbotEntries;
+    };
   };
 
   public shared ({ caller }) func updateChatbotEntry(
@@ -693,16 +702,50 @@ actor {
       let entry = chatbotEntries[i];
       if (entry.id == id) {
         found := true;
-        { entry with intro; whatToDo; documents; lawyerType; cost; timeRequired; successRate; tip }
+        { entry with intro; whatToDo; documents; lawyerType; cost; timeRequired; successRate; tip };
       } else {
-        entry
-      }
+        entry;
+      };
     });
-    found
+    found;
   };
 
   public shared ({ caller }) func resetChatbotEntries() : async Bool {
     chatbotEntries := getDefaultEntries();
-    true
+    true;
+  };
+
+  // WAITLIST FUNCTIONALITY
+
+  public shared ({ caller }) func addWaitlistEntry(name : Text, email : Text, phone : Text) : async Bool {
+    if (name == "" or email == "" or phone == "") { return false };
+    if (phone.size() != 10 or not phone.chars().all(func(c) { c >= '0' and c <= '9' })) {
+      return false;
+    };
+
+    let now = Time.now();
+    let id = email # "-" # toNat(now).toText();
+
+    // Update persistent map first
+    let newWaitlistEntry : WaitlistEntry = {
+      name;
+      email;
+      phone;
+      timestamp = now;
+    };
+    waitlistEntries.add(id, newWaitlistEntry);
+    true;
+  };
+
+  public query ({ caller }) func getAllWaitlistEntries() : async [WaitlistEntry] {
+    waitlistEntries.values().toArray();
+  };
+
+  public query ({ caller }) func getMyWaitlistEntry(email : Text) : async ?WaitlistEntry {
+    waitlistEntries.get(email);
+  };
+
+  func toNat(time : Time.Time) : Nat {
+    time.toNat();
   };
 };

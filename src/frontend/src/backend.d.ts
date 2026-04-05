@@ -23,6 +23,12 @@ export interface Lawyer {
     rating: number;
     location: string;
 }
+export interface WaitlistEntry {
+    name: string;
+    email: string;
+    timestamp: Time;
+    phone: string;
+}
 export type Time = bigint;
 export interface Feedback {
     comment: string;
@@ -30,11 +36,12 @@ export interface Feedback {
     rating: bigint;
     principalId: Principal;
 }
-export interface GuidanceHistory {
-    id: bigint;
-    queryText: string;
+export interface LoginRecord {
+    name: string;
+    role: string;
     timestamp: Time;
-    resultSummary: string;
+    phone: string;
+    principalId: Principal;
 }
 export interface LawyerProfile {
     name: string;
@@ -43,6 +50,27 @@ export interface LawyerProfile {
     barNumber: string;
     location: string;
     principalId: Principal;
+}
+export interface GuidanceHistory {
+    id: bigint;
+    queryText: string;
+    timestamp: Time;
+    resultSummary: string;
+}
+export interface ChatbotEntry {
+    id: bigint;
+    tip: string;
+    title: string;
+    documents: Array<string>;
+    cost: string;
+    icon: string;
+    whatToDo: string;
+    successRate: string;
+    timeRequired: string;
+    topicKey: string;
+    keywords: Array<string>;
+    lawyerType: string;
+    intro: string;
 }
 export interface UserProfile {
     name: string;
@@ -58,21 +86,6 @@ export interface Case {
     createdDate: Time;
     description: string;
     assignedLawyer?: Principal;
-}
-export interface ChatbotEntry {
-    id: bigint;
-    topicKey: string;
-    icon: string;
-    title: string;
-    keywords: Array<string>;
-    intro: string;
-    whatToDo: string;
-    documents: Array<string>;
-    lawyerType: string;
-    cost: string;
-    timeRequired: string;
-    successRate: string;
-    tip: string;
 }
 export enum CaseStatus {
     Active = "Active",
@@ -97,6 +110,7 @@ export interface backendInterface {
     addGuidanceHistory(entry: GuidanceHistory): Promise<{
         id: bigint;
     }>;
+    addWaitlistEntry(name: string, email: string, phone: string): Promise<boolean>;
     assignCaseToLawyer(arg0: {
         lawyerPrincipal: Principal;
         caseId: bigint;
@@ -105,6 +119,7 @@ export interface backendInterface {
     deleteUser(principalId: Principal): Promise<boolean>;
     getAllFeedback(): Promise<Array<Feedback>>;
     getAllLoginRecords(): Promise<Array<LoginRecord>>;
+    getAllWaitlistEntries(): Promise<Array<WaitlistEntry>>;
     getCases(): Promise<Array<Case>>;
     getChatbotEntries(): Promise<Array<ChatbotEntry>>;
     getDocuments(): Promise<Array<UploadedDocument>>;
@@ -113,6 +128,7 @@ export interface backendInterface {
     getLawyerProfile(): Promise<LawyerProfile | null>;
     getLawyerProfiles(): Promise<Array<Lawyer>>;
     getMyProfile(): Promise<UserProfile | null>;
+    getMyWaitlistEntry(email: string): Promise<WaitlistEntry | null>;
     getUserFeedback(): Promise<Feedback | null>;
     getUserLanguage(): Promise<Language | null>;
     initialize(): Promise<void>;
@@ -128,22 +144,5 @@ export interface backendInterface {
         caseId: bigint;
         newStatus: CaseStatus;
     }): Promise<boolean>;
-    updateChatbotEntry(
-        id: bigint,
-        intro: string,
-        whatToDo: string,
-        documents: Array<string>,
-        lawyerType: string,
-        cost: string,
-        timeRequired: string,
-        successRate: string,
-        tip: string
-    ): Promise<boolean>;
-}
-export interface LoginRecord {
-    name: string;
-    phone: string;
-    role: string;
-    timestamp: Time;
-    principalId: Principal;
+    updateChatbotEntry(id: bigint, intro: string, whatToDo: string, documents: Array<string>, lawyerType: string, cost: string, timeRequired: string, successRate: string, tip: string): Promise<boolean>;
 }
